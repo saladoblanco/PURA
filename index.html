@@ -211,7 +211,7 @@
         .module-card:hover::before, .list-card:hover::before { left: 200%; }
         .module-card .emoji { font-size: 4.5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); transition: transform 0.3s ease; }
         .module-card:hover .emoji { transform: scale(1.15); }
-        .module-card h3 { font-size: 1.25rem; font-weight: 600; line-height: 1.4; color: #ffffff; }
+        .module-card h3 { font-size: 1.25rem; font-weight: 600; line-height: 1.4; color: #ffffff; text-align: center; width: 100%; hyphens: manual; overflow-wrap: break-word; text-wrap: balance; }
         .badge-soon {
             position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.15);
             color: var(--primary-gold); font-size: 0.75rem; font-weight: 800; padding: 5px 12px;
@@ -413,6 +413,15 @@
         }
         .btn-link:hover { background: var(--primary-gold); color: var(--primary-blue); }
 
+        /* === PROTOCOLO DESDE GOOGLE SHEETS === */
+        .abg-sources p { margin-top: 0.6rem; line-height: 1.5; word-break: break-word; }
+        .abg-sources a, .info-box a { color: var(--primary-gold); }
+        .sheet-status { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 1.5rem; }
+        .sheet-status.offline { color: #ffcc80; }
+        .sheet-retry { background: none; border: 1px solid currentColor; color: inherit; border-radius: 20px; padding: 0.1rem 0.7rem; margin-left: 0.4rem; font-family: inherit; font-size: 0.78rem; cursor: pointer; }
+        .sheet-spinner { display: inline-block; animation: sheet-pulse 1.2s ease-in-out infinite; }
+        @keyframes sheet-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
         @media (max-width: 768px) {
             header h2.pura-title { font-size: 2.5rem; }
             .search-input { font-size: 1rem; padding: 1rem 1rem 1rem 3rem; }
@@ -479,7 +488,8 @@
 
     <script>
         // ==========================================
-        // 1. BASE DE DATOS CLÍNICA (INTEGRADA EXCEL)
+        // 1. BASE DE DATOS CLÍNICA
+        // Adultos y Pediatría se cargan desde Google Sheets (sección 1C).
         // ==========================================
         const protocolosClinicos = {
             // --- VISTA PRINCIPAL ---
@@ -491,724 +501,6 @@
                     { id: 'antibiograma-dashboard', emoji: '🧫', title: 'Lectura adecuada de antibiograma' }
                 ]
             },
-
-            // --- DASHBOARD ADULTOS ---
-            'adultos-dashboard': {
-                type: 'dashboard', title: 'Módulo Adultos', emoji: '🧑‍⚕️',
-                cards: [
-                    { id: 'uti-adults-view', emoji: '🦠', title: 'Infección de vías urinarias' },
-                    { id: 'iptb-adults-view', emoji: '🩹', title: 'Piel y tejidos blandos' },
-                    { id: 'abdom-adults-view', emoji: '🤮', title: 'Infecciones abdominales y gastrointestinales' },
-                    { id: 'osteo-adults-view', emoji: '🦴', title: 'Infecciones osteoarticulares' },
-                    { id: 'neuro-adults-view', emoji: '🧠', title: 'Infecciones neurológicas' },
-                    { id: 'otorrino-adults-view', emoji: '👂', title: 'Infecciones de otorrinolaringología' },
-                    { id: 'resp-adults-view', emoji: '🫁', title: 'Infección de tracto respiratorio' },
-                    { id: 'gineco-adults-view', emoji: '🤰', title: 'Infecciones gineco-obstétricas' },
-                    { id: 'sepsis-adults-view', emoji: '🩸', title: 'Manejo empírico SEPSIS' }
-                ]
-            },
-
-            // --- MENÚS ADULTOS ---
-            'uti-adults-view': {
-                type: 'menu', emoji: '🦠', title: 'Infección de vías urinarias (Adultos)',
-                stepTitle: 'Seleccione diagnóstico y clasificación', stepSubtitle: 'En caso de dudas, revise los protocolos locales.',
-                cards: [
-                    { id: 'ivu-no-comp-ad', title: 'Infección de vías urinarias no complicada' },
-                    { id: 'cistitis-complicada-view', title: 'Cistitis complicada' },
-                    { id: 'pielonefritis-complicada-view', title: 'Pielonefritis complicada' },
-                    { id: 'sepsis-ur-ad', title: 'Sepsis Urinaria' },
-                    { id: 'ivu-embarazo-ad', title: 'IVU en embarazo' },
-                    { id: 'prostatitis-ad', title: 'Prostatitis' }
-                ]
-            },
-            'iptb-adults-view': {
-                type: 'menu', emoji: '🩹', title: 'Infección de piel y tejidos blandos (Adultos)',
-                stepTitle: 'Seleccione la patología', stepSubtitle: 'Seleccione la patología específica a tratar.',
-                cards: [
-                    { id: 'impetigo-ad', title: 'Impétigo y ectima' },
-                    { id: 'iptb-purulenta-ad', title: 'IPTB Purulenta' },
-                    { id: 'celulitis-ad', title: 'Celulitis y Erisipela' },
-                    { id: 'necrosante-ad', title: 'Infección necrosante' },
-                    { id: 'piomiositis-ad', title: 'Piomiositis' },
-                    { id: 'pie-diabetico-ad', title: 'Pie diabético' }
-                ]
-            },
-            'abdom-adults-view': {
-                type: 'menu', emoji: '🤮', title: 'Abdominales y Gastrointestinales (Adultos)',
-                stepTitle: 'Seleccione la patología', stepSubtitle: '',
-                cards: [
-                    { id: 'abs-hep-ad', title: 'Abscesos hepáticos' },
-                    { id: 'abs-intra-ad', title: 'Abscesos intraabdominales / Peritonitis secundaria' },
-                    { id: 'apen-no-perf-ad', title: 'Apendicitis no perforada o peritonitis localizada' },
-                    { id: 'apen-perf-ad', title: 'Apendicitis con peritonitis sistémica' },
-                    { id: 'colecistitis-ad', title: 'Colecistitis' },
-                    { id: 'diverticulitis-ad', title: 'Diverticulitis' },
-                    { id: 'diarrea-viajero-ad', title: 'Diarrea del viajero' },
-                    { id: 'gastro-bact-ad', title: 'Gastroenteritis aguda / Diarrea bacteriana' }
-                ]
-            },
-            'osteo-adults-view': {
-                type: 'menu', emoji: '🦴', title: 'Infecciones Osteo-articulares (Adultos)',
-                stepTitle: 'Seleccione la patología', stepSubtitle: 'Es preferible tomar cultivo directo en cirugía antes de iniciar antibiótico (si hemodinamia lo permite).',
-                cards: [
-                    { id: 'artritis-sep-ad', title: 'Artritis Séptica monoarticular' },
-                    { id: 'inf-protesis-ad', title: 'Infección asociada a prótesis articular' },
-                    { id: 'osteo-ad', title: 'Osteomielitis' },
-                    { id: 'osteo-cronica-ad', title: 'Osteomielitis crónica' },
-                    { id: 'fractura-exp-ad', title: 'Fracturas expuestas' }
-                ]
-            },
-            'neuro-adults-view': {
-                type: 'menu', emoji: '🧠', title: 'Infecciones Neurológicas (Adultos)',
-                stepTitle: 'Seleccione la patología', stepSubtitle: '',
-                cards: [
-                    { id: 'meningitis-ad', title: 'Meningitis Bacteriana' },
-                    { id: 'abs-cerebral-ad', title: 'Absceso cerebral' }
-                ]
-            },
-            'otorrino-adults-view': {
-                type: 'menu', emoji: '👂', title: 'Infecciones Otorrinolaringología (Adultos)',
-                stepTitle: 'Seleccione la patología', stepSubtitle: '',
-                cards: [
-                    { id: 'faringo-ad', title: 'Faringoamigdalitis' },
-                    { id: 'sinusitis-ad', title: 'Sinusitis' },
-                    { id: 'otitis-ad', title: 'Otitis Media Aguda' }
-                ]
-            },
-            'resp-adults-view': {
-                type: 'menu', emoji: '🫁', title: 'Vías Respiratorias (Adultos)',
-                stepTitle: 'Seleccione la patología', stepSubtitle: '',
-                cards: [
-                    { id: 'nac-amb-ad', title: 'Neumonía adquirida en la comunidad (Ambulatorio)' },
-                    { id: 'nac-hosp-ad', title: 'Neumonía adquirida en la comunidad (Urgencias / Hospitalización)' },
-                    { id: 'nacs-ad', title: 'Neumonía asociada a cuidados de la salud' },
-                    { id: 'nac-emb-ad', title: 'NAC paciente embarazada' },
-                    { id: 'tb-ad', title: 'Tuberculosis pulmonar y otros' }
-                ]
-            },
-            'gineco-adults-view': {
-                type: 'menu', emoji: '🤰', title: 'Infecciones Gineco-obstétricas (Adultos)',
-                stepTitle: 'Seleccione la patología', stepSubtitle: '',
-                cards: [
-                    { id: 'aborto-sep-ad', title: 'Aborto séptico' },
-                    { id: 'bartolino-ad', title: 'Absceso de Bartolino' },
-                    { id: 'epi-ad', title: 'EPI / Absceso tubo-ovárico' },
-                    { id: 'corio-ad', title: 'Corioamnionitis / Endometritis' },
-                    { id: 'mastitis-ad', title: 'Mastitis' },
-                    { id: 'iso-gineco-ad', title: 'Infección sitio operatorio (Cesárea / Histerectomía)' }
-                ]
-            },
-            'sepsis-adults-view': {
-                type: 'menu', emoji: '🩸', title: 'Manejo empírico SEPSIS (Adultos)',
-                stepTitle: 'Seleccione el origen probable', stepSubtitle: '',
-                cards: [
-                    { id: 'sepsis-desc-ad', title: 'Origen desconocido' },
-                    { id: 'sepsis-pulm-ad', title: 'Origen Pulmonar' },
-                    { id: 'sepsis-pulm-hosp-ad', title: 'Origen Pulmonar Adquirida en Hospital' },
-                    { id: 'sepsis-abd-ad', title: 'Origen Abdominal' },
-                    { id: 'sepsis-uri-ad', title: 'Origen Urinario' },
-                    { id: 'sepsis-piel-ad', title: 'Origen Piel y tejidos blandos' }
-                ]
-            },
-
-            // --- TRATAMIENTOS ADULTOS: IVU ---
-            'ivu-no-comp-ad': {
-                type: 'treatment', title: 'Infección de vías urinarias no complicada',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema Empírico (Paciente con TFG ≥ 45 ml/min)', content: '<strong>Nitrofurantoína:</strong> 100mg vía oral cada 6 horas.' },
-                    { style: 'primary', title: '💊 Esquema Empírico (Paciente con TFG < 45 ml/min)', content: '<strong>Fosfomicina:</strong> 3 gr vía oral, dosis única.' },
-                    { style: 'explicit', title: '🔄 Alternativa', content: '<strong>Cefalexina:</strong> 1gr vía oral cada 12 horas. (Según resultado de Urocultivo)' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: 5 a 7 días.<br>No recomendado Trimetoprima sulfametoxazol ni fluoroquinolonas por alta resistencia en Colombia.' }
-                ]
-            },
-            'cistitis-complicada-view': {
-                type: 'flow', emoji: '🦠', title: 'Cistitis complicada',
-                initialText: 'Una vez realizado el diagnóstico siga los siguientes pasos:',
-                questions: [
-                    { id: 'hosp-sin-vo-view', text: '¿El paciente está hospitalizado sin vía oral?' },
-                    { id: 'tfg-mayor-45-view', text: '¿El paciente tiene TFG ≥ 45 ml/min?' },
-                    { id: 'tfg-menor-45-view', text: '¿El paciente tiene TFG < 45 ml/min?' }
-                ]
-            },
-            'pielonefritis-complicada-view': {
-                type: 'flow', emoji: '🦠', title: 'Pielonefritis complicada',
-                initialText: 'Una vez realizado el diagnóstico siga los siguientes pasos:',
-                questions: [
-                    { id: 'pielo-mod1-view', text: '¿Tiene reporte de urocultivo en los últimos 3 meses?' },
-                    { id: 'pielo-mod2-view', text: '¿El paciente refiere alergia a betalactámicos?' },
-                    { id: 'pielo-mod3-view', text: '¿Paciente con instrumentación reciente de vías urinarias o portador de catéter?' },
-                    { id: 'pielo-mod4-view', text: '¿Uso de antimicrobianos en los últimos 3 meses?' },
-                    { id: 'pielo-mod5-view', text: '¿Todas las preguntas anteriores fueron negativas?' }
-                ]
-            },
-            'sepsis-ur-ad': {
-                type: 'treatment', title: 'Sepsis Urinaria',
-                boxes: [
-                    { style: 'primary', title: '💊 Sin riesgo BLEE', content: '<strong>Ceftriaxona:</strong> 1gr endovenoso cada 12 horas.<br>O<br><strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Con riesgo BLEE', content: '<strong>Meropenem:</strong> 1 gr vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alternativa / Alergias', content: '<strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Evaluar según PCR y cultivos. La toma o ausencia de cultivos no debe limitar el inicio de terapia antibiótica.' }
-                ]
-            },
-            'ivu-embarazo-ad': {
-                type: 'treatment', title: 'IVU en embarazo',
-                boxes: [
-                    { style: 'primary', title: '💊 Bacteriuria asintomática y Cistitis', content: '<strong>Nitrofurantoína:</strong> 100mg vía oral cada 6 horas. O <strong>Fosfomicina:</strong> 3 gr vía oral, dosis única.<br><em>Alternativa:</em> <strong>Cefalexina:</strong> 500mg vía oral cada 8 horas.<br><strong>Duración:</strong> 5 a 7 días.' },
-                    { style: 'warning', title: '⚠️ Pielonefritis', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas.<br><strong>Duración:</strong> 14 días (evaluar cambio a vía oral en el transcurso del mismo tiempo).' }
-                ]
-            },
-            'prostatitis-ad': {
-                type: 'treatment', title: 'Prostatitis',
-                boxes: [
-                    { style: 'primary', title: '💊 Sin riesgo BLEE', content: '<strong>Ceftriaxona:</strong> 1gr endovenoso cada 12 horas.<br>O<br><strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Con riesgo BLEE', content: '<strong>Ertapenem:</strong> 1gr vía endovenosa cada 24 horas.<br>O<br><strong>Meropenem:</strong> 1 gr vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 En caso de alergias a anteriores', content: '<strong>Ciprofloxacino:</strong> 500mg vía oral cada 12 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: 4 a 6 semanas según evolución y complicaciones. Evaluar cambio a vía oral en el transcurso del mismo tiempo.' }
-                ]
-            },
-
-            // (Flow resolutions from original code included here)
-            'hosp-sin-vo-view': { type: 'treatment', title: 'Hospitalizado sin vía oral', boxes: [ { style: 'primary', title: 'Esquema', content: '<strong>Cefazolina:</strong> 2 gr vía endovenosa cada 8 horas.' }, { style: 'secondary', title: 'Duración', content: '5 días para mujeres, y 7 días para hombres o portadores de catéter urinario.' } ] },
-            'tfg-mayor-45-view': { type: 'treatment', title: 'Paciente con TFG ≥ 45 ml/min', boxes: [ { style: 'primary', title: 'Esquema', content: '<strong>Nitrofurantoína:</strong> 100mg vía oral cada 6 horas.' } ] },
-            'tfg-menor-45-view': { type: 'treatment', title: 'Paciente con TFG < 45 ml/min', boxes: [ { style: 'primary', title: 'Esquema', content: '<strong>Fosfomicina:</strong> 3 gr vía oral, dosis única.' } ] },
-            'pielo-mod1-view': { type: 'treatment', title: 'Urocultivo previo', boxes: [ { style: 'explicit', title: 'Importante', content: 'No aplica esquema empírico. Terapia dirigida según cultivo previo o esperar a nuevo reporte de urocultivo.' } ] },
-            'pielo-mod2-view': { type: 'treatment', title: 'Alergia a betalactámicos', boxes: [ { style: 'primary', title: 'Esquema', content: '<strong>Aztreonam:</strong> 1 gr vía endovenosa cada 8 horas.' } ] },
-            'pielo-mod3-view': { type: 'treatment', title: 'Instrumentación reciente de vías urinarias', boxes: [ { style: 'primary', title: 'Esquema', content: '<strong>Ceftriaxona:</strong> 2 gr vía endovenosa cada 24 horas.' } ] },
-            'pielo-mod4-view': { type: 'treatment', title: 'Uso de antimicrobianos en los últimos 3 meses', boxes: [ { style: 'primary', title: 'Esquema', content: '<strong>Cefuroxima Axetil:</strong> 1 gr vía oral cada 12 horas, o<br><strong>Cefuroxima Sódica:</strong> 750 mg vía endovenosa cada 12 horas.' } ] },
-            'pielo-mod5-view': { type: 'treatment', title: 'Ninguna de las anteriores', boxes: [ { style: 'primary', title: 'Esquema', content: '<strong>Cefalexina:</strong> 1 gr vía oral cada 8 horas, o<br><strong>Cefazolina:</strong> 2 gr vía endovenosa cada 8 horas.' } ] },
-
-            // --- TRATAMIENTOS ADULTOS: IPTB ---
-            'impetigo-ad': {
-                type: 'treatment', title: 'Impétigo y ectima',
-                boxes: [
-                    { style: 'primary', title: '💊 Leve < 5 lesiones', content: '<strong>Mupirocina o Ácido Fusídico</strong>, aplicar tópicamente cada 12 horas.' },
-                    { style: 'warning', title: '⚠️ 5 o más lesiones', content: '<strong>Trimetoprima sulfametoxazol:</strong> 160/800mg vía oral cada 12 horas.<br>O<br><strong>Clindamicina:</strong> 300mg vía oral cada 6 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: 5 a 7 Días. Ajustar Trimetoprima sulfametoxazol según TFG.' }
-                ]
-            },
-            'iptb-purulenta-ad': {
-                type: 'treatment', title: 'IPTB Purulenta',
-                boxes: [
-                    { style: 'explicit', title: '🔪 Intervención', content: '<strong>Realizar drenaje.</strong>' },
-                    { style: 'primary', title: '💊 Manejo ambulatorio', content: '<strong>Trimetoprima sulfametoxazol:</strong> 160/800mg vía oral cada 12 horas O <strong>Clindamicina:</strong> 300mg vía oral cada 6 horas.' },
-                    { style: 'warning', title: '🏥 Paciente requiere hospitalización', content: '<strong>Clindamicina:</strong> 600mg vía endovenosa cada 6 horas.<br>O<br><strong>Vancomicina:</strong> 15-20mg/kg/dosis vía endovenosa cada 12 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: 5 a 7 días. Ajustar vancomicina y Trimetoprima sulfametoxazol según TFG.' }
-                ]
-            },
-            'celulitis-ad': {
-                type: 'treatment', title: 'Celulitis y Erisipela',
-                boxes: [
-                    { style: 'primary', title: '💊 Manejo ambulatorio / Urgencias', content: '<strong>Cefalexina:</strong> 500mg vía oral cada 6 horas.<br>O <strong>Clindamicina:</strong> 300mg vía oral cada 8 horas.<br>O <strong>Amoxicilina/Ácido clavulánico:</strong> 875/125 mg vía oral cada 12 horas.' },
-                    { style: 'warning', title: '🏥 Paciente requiere hospitalización', content: '<strong>Oxacilina:</strong> 2 gr vía endovenosa cada 4 horas.<br>O <strong>Cefazolina:</strong> 1gr vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '⚠️ Factores de riesgo para SAMR', content: '<strong>Vancomicina:</strong> 15-20mg/kg/dosis vía endovenosa cada 12 horas.<br>O <strong>Trimetoprima sulfametoxazol:</strong> 160/800mg vía oral cada 12 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: 5 a 7 días. Ajustar dosis según TFG.' }
-                ]
-            },
-            'necrosante-ad': {
-                type: 'treatment', title: 'Infección necrosante',
-                boxes: [
-                    { style: 'explicit', title: '🔪 Intervención', content: '<strong>Desbridamiento quirúrgico inmediato.</strong>' },
-                    { style: 'primary', title: '💊 Esquema Hospitalario / UCI', content: '<strong>Vancomicina:</strong> 15-20mg/kg/dosis vía endovenosa cada 12 horas<br>+<br>(<strong>Cefepime:</strong> 2gr vía endovenosa cada 8 horas O <strong>Piperacilina/tazobactam:</strong> 4.5gr vía endovenosa cada 6 horas)<br>+<br><strong>Clindamicina:</strong> 600mg vía endovenosa cada 6 horas.' }
-                ]
-            },
-            'piomiositis-ad': {
-                type: 'treatment', title: 'Piomiositis',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema Empírico', content: '<strong>Vancomicina:</strong> 15-20mg/kg/dosis vía endovenosa cada 12 horas.' },
-                    { style: 'warning', title: '🔄 Alternativas', content: 'Paciente con falla renal: <strong>Linezolid:</strong> 600mg vía endovenosa cada 12 horas.<br>Si es SAMS: Cambiar a <strong>Cefazolina u Oxacilina</strong>.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración de 2 a 3 semanas.' }
-                ]
-            },
-            'pie-diabetico-ad': {
-                type: 'treatment', title: 'Pie diabético',
-                boxes: [
-                    { style: 'primary', title: '💊 Leve - Moderado', content: '<strong>Ceftriaxona:</strong> 1 gr vía endovenosa cada 12 horas + <strong>Metronidazol:</strong> 500mg vía endovenosa cada 8 horas.<br>O <strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 6 horas.<br>(En casos leves, podría darse manejo vía oral con amoxicilina + ácido clavulánico)' },
-                    { style: 'warning', title: '⚠️ Severo - Necrosis', content: '<strong>Piperacilina + tazobactam</strong> y adicionar <strong>Vancomicina:</strong> 20mg/kg cada 12 horas.' },
-                    { style: 'explicit', title: '⚠️ Riesgo BLEE o Alternativas', content: 'Riesgo BLEE: <strong>Meropenem:</strong> 2gr vía endovenosa cada 8 horas + Vancomicina.<br>Alternativa Piperacilina Tazobactam: <strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas + Metronidazol 500mg vía endovenosa cada 8 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración de 5 días a 6 semanas según evolución.' }
-                ]
-            },
-
-            // --- TRATAMIENTOS ADULTOS: ABDOMINAL ---
-            'abs-hep-ad': {
-                type: 'treatment', title: 'Abscesos hepáticos',
-                boxes: [
-                    { style: 'primary', title: '💊 Empírico estándar', content: '<strong>Ceftriaxona:</strong> 2 gr vía endovenosa cada 24 horas + <strong>Metronidazol:</strong> 500 mg vía endovenosa/vía oral cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Riesgo BLEE', content: '<strong>Meropenem:</strong> 1gr vía endovenosa cada 8 horas.<br>O <strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: 2 a 6 semanas. El tiempo dependerá de la posibilidad de drenaje del absceso.' }
-                ]
-            },
-            'abs-intra-ad': {
-                type: 'treatment', title: 'Abscesos intraabdominales / Peritonitis / Sepsis abdominal',
-                boxes: [
-                    { style: 'primary', title: '💊 Sin riesgo BLEE', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas + <strong>Metronidazol:</strong> 500 mg vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Compromiso hemodinámico / Choque séptico', content: '<strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '⚠️ Riesgo BLEE / Alternativas', content: 'Con riesgo BLEE: <strong>Meropenem:</strong> 2gr vía endovenosa cada 8 horas.<br>En pacientes hemodinámicamente estables Tigeciclina puede ser indicada.<br>O: <strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas + Metronidazol o Clindamicina 600 mg cada 6 horas.' }
-                ]
-            },
-            'apen-no-perf-ad': {
-                type: 'treatment', title: 'Apendicitis no perforada',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas + <strong>Metronidazol:</strong> 500mg cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alergia a betalactámicos', content: '<strong>Ciprofloxacino:</strong> 400 mg vía oral cada 8 horas + <strong>Metronidazol:</strong> 500 mg vía oral cada 8 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: De 3 a 5 días.' }
-                ]
-            },
-            'apen-perf-ad': {
-                type: 'treatment', title: 'Apendicitis con peritonitis sistémica',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Ertapenem:</strong> 1gr vía endovenosa cada 24 horas.' },
-                    { style: 'explicit', title: '🔄 Alternativa', content: '<strong>Tigeciclina:</strong> 100 mg vía endovenosa iniciales, seguido de 50 mg cada 12 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: Hasta 7 días o según evolución.' }
-                ]
-            },
-            'colecistitis-ad': {
-                type: 'treatment', title: 'Colecistitis',
-                boxes: [
-                    { style: 'primary', title: '💊 Grado I y II', content: 'Grado I: <strong>Cefazolina:</strong> 2gr vía endovenosa cada 8 horas.<br>Grado II: <strong>Ceftriaxona:</strong> 1 gr vía endovenosa cada 12 horas + <strong>Metronidazol:</strong> 500mg vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Grado III', content: '<strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 6 horas, O <strong>Meropenem:</strong> 1gr vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alergia a betalactámicos', content: '<strong>Ciprofloxacino:</strong> 400 mg vía endovenosa cada 12 horas + <strong>Metronidazol:</strong> 500 mg vía endovenosa cada 8 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'De 4 a 7 días, en casos graves hasta 10 días.' }
-                ]
-            },
-            'diverticulitis-ad': {
-                type: 'treatment', title: 'Diverticulitis (Clasificación Hinchey)',
-                boxes: [
-                    { style: 'primary', title: '💊 Hinchey 0 - Ia', content: 'Manejo sintomático, cambios de la dieta, sin antibiótico.' },
-                    { style: 'primary', title: '💊 Hinchey Ib - II', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas + <strong>Metronidazol:</strong> 500mg cada 8 horas.<br>(Si hay tolerancia oral: Cefuroxime 500 mg oral cada 12 horas + metronidazol 500 mg oral cada 8 horas)' },
-                    { style: 'warning', title: '⚠️ Hinchey III - IV', content: '<strong>Ceftriaxona:</strong> 1g vía endovenosa cada 12 horas + <strong>Metronidazol:</strong> 500 mg cada 8 horas.<br>O <strong>Ertapenem:</strong> 1 gr vía endovenosa cada día si hay riesgo de BLEE.' },
-                    { style: 'explicit', title: '🔄 Alternativas y severidad', content: 'Hinchey Ib: <strong>Piperacilina + tazobactam:</strong> 4.5gr o <strong>cefepime:</strong> 2gr vía endovenosa cada 8 horas + metronidazol 500 mg vía endovenosa cada 8 horas.<br>Hinchey II, III, IV: <strong>Ertapenem:</strong> 1gr vía endovenosa cada día O <strong>Meropenem:</strong> 2 g vía endovenosa cada 8 horas.<br>Alternativa: <strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas + Metronidazol 500mg vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'diarrea-viajero-ad': {
-                type: 'treatment', title: 'Diarrea del viajero',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema Empírico', content: '<strong>Azitromicina:</strong> 1gr vía oral, dosis única O 500mg vía oral cada 8 horas por 3 días.' },
-                    { style: 'explicit', title: '🔄 Alternativa', content: '<strong>Rifaximina:</strong> 550mg vía oral cada 8 horas por 3 días.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'No manejo antibiótico en casos leves. Duración de 1 a 3 días.' }
-                ]
-            },
-            'gastro-bact-ad': {
-                type: 'treatment', title: 'Gastroenteritis aguda / Diarrea bacteriana',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema Ambulatorio', content: '<strong>Azitromicina:</strong> 1gr vía oral, dosis única O 500mg vía oral cada 8 horas por 3 días.' },
-                    { style: 'warning', title: '🏥 Casos Graves', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas + <strong>Metronidazol:</strong> 500mg vía oral cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alternativa', content: '<strong>Ciprofloxacina:</strong> 500mg vía oral cada 12 horas por 3 días.' }
-                ]
-            },
-
-            // --- TRATAMIENTOS ADULTOS: OSTEO ---
-            'artritis-sep-ad': {
-                type: 'treatment', title: 'Artritis Séptica Monoarticular',
-                boxes: [
-                    { style: 'primary', title: '💊 Leves o monoarticular', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas. + <strong>Vancomicina:</strong> 15-20mg/kg/dosis vía endovenosa cada 12 horas.' },
-                    { style: 'warning', title: '⚠️ Grave o poliarticular', content: '<strong>Cefepime:</strong> 2gr vía endovenosa cada 8 horas + <strong>Vancomicina.</strong>' },
-                    { style: 'explicit', title: '🔄 Alternativas y Alergias', content: 'Alergia a betalactámicos: <strong>Clindamicina:</strong> 600 mg vía endovenosa cada 6 horas + vancomicina.<br>Alternativa a Cefepime: <strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas.<br><strong>Daptomicina:</strong> 8-10 mg/kg vía endovenosa cada día.' }
-                ]
-            },
-            'inf-protesis-ad': {
-                type: 'treatment', title: 'Infección asociada a prótesis articular',
-                boxes: [
-                    { style: 'explicit', title: '⚠️ Regla Crítica', content: 'Iniciar antibióticos solo si el paciente se encuentra séptico, de lo contrario esperar resultados de cultivos.' },
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Vancomicina:</strong> dosis inicial 30 mg/kg y continuar 20 mg/kg cada 12 horas + <strong>Cefepime:</strong> 2gr vía endovenosa cada 8 horas.' },
-                    { style: 'secondary', title: '🔄 Alternativas', content: 'Alternativa a Vancomicina: <strong>Daptomicina:</strong> 8-10 mg/kg vía endovenosa cada día.<br>Alternativa a cefepime: <strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'osteo-ad': {
-                type: 'treatment', title: 'Osteomielitis',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas + <strong>Vancomicina:</strong> 15-20mg/kg/dosis vía endovenosa cada 12 horas.' },
-                    { style: 'warning', title: '⚠️ Asociado a pie diabético', content: '<strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 6 horas.' },
-                    { style: 'explicit', title: '🔄 Alergia a betalactámicos', content: '<strong>Clindamicina:</strong> 600mg vía endovenosa cada 8 horas + <strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'osteo-cronica-ad': {
-                type: 'treatment', title: 'Osteomielitis crónica',
-                boxes: [
-                    { style: 'explicit', title: '📋 Conducta', content: 'Idealmente esperar los cultivos de hueso para definir el tratamiento. En cirugía toma de por lo menos 3 cultivos de hueso con pinza/gubia diferente y toma de biopsia de hueso para histopatología.' },
-                    { style: 'secondary', title: '⏱️ Duración', content: 'De 6 a 8 semanas.' }
-                ]
-            },
-            'fractura-exp-ad': {
-                type: 'treatment', title: 'Fracturas expuestas (Clasificación Gustilo)',
-                boxes: [
-                    { style: 'primary', title: '💊 Grado I, II', content: '<strong>Cefazolina:</strong> 2 gr vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Grado III', content: '<strong>Cefazolina</strong> + <strong>Gentamicina:</strong> 3-5mg/kg vía endovenosa cada día.' },
-                    { style: 'explicit', title: '☣️ Contaminadas con material orgánico o materia fecal', content: 'Adicionar <strong>Penicilina G Sódica:</strong> 4-5 millones UI vía endovenosa cada 4 horas.' },
-                    { style: 'secondary', title: '🔄 Alergias', content: 'Alergia a betalactámicos: <strong>Clindamicina:</strong> 600mg vía endovenosa cada 6 horas.' }
-                ]
-            },
-
-            // --- TRATAMIENTOS ADULTOS: NEURO ---
-            'meningitis-ad': {
-                type: 'treatment', title: 'Meningitis Bacteriana',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema Empírico', content: '<strong>Vancomicina:</strong> dosis inicial 30 mg/kg y continuar 20 mg/kg cada 12 horas<br>+<br><strong>Ceftriaxona:</strong> 2gr vía endovenosa cada 12 horas o <strong>Cefepime:</strong> 2gr vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alternativas', content: 'Alternativa a vancomicina: <strong>Linezolid:</strong> 600 mg vía endovenosa cada 12 horas.<br>Alternativa a cefepime y ceftriaxona: <strong>Aztreonam:</strong> 2 gr vía endovenosa cada 8 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Toma de cultivo de LCR antes de iniciar antibiótico.' }
-                ]
-            },
-            'abs-cerebral-ad': {
-                type: 'treatment', title: 'Absceso Cerebral',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Cefepime:</strong> 2gr vía endovenosa cada 8 horas + <strong>Metronidazol:</strong> 500mg vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alternativa', content: '<strong>Vancomicina:</strong> dosis inicial 30 mg/kg y continuar 20 mg/kg cada 12 horas + <strong>Metronidazol</strong>.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Duración: 4 a 6 semanas.' }
-                ]
-            },
-
-            // --- TRATAMIENTOS ADULTOS: OTORRINO ---
-            'faringo-ad': {
-                type: 'treatment', title: 'Faringoamigdalitis',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Penicilina Benzatinica:</strong> 2.4 millones UI vía intramuscular, dosis única.<br>O <strong>Amoxicilina:</strong> 500mg vía oral cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alergia a penicilina', content: '<strong>Azitromicina:</strong> 500mg vía oral cada día por 3 días.<br>Otra alternativa: Cefalosporinas de primera generación.' }
-                ]
-            },
-            'sinusitis-ad': {
-                type: 'treatment', title: 'Sinusitis',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Amoxicilina + Ácido clavulánico:</strong> 500mg/125mg vía oral cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alternativas', content: '<strong>Doxiciclina:</strong> 100mg vía oral cada 12 horas.<br>O Cefalosporinas de primera generación. Evitar quinolonas.' }
-                ]
-            },
-            'otitis-ad': {
-                type: 'treatment', title: 'Otitis Media Aguda',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Amoxicilina:</strong> 500mg vía oral cada 8 horas.<br>(Alternativa: <strong>Amoxicilina + Ácido clavulánico:</strong> 500mg/125mg vía oral cada 8 horas)' },
-                    { style: 'explicit', title: '🔄 Alergia a penicilina', content: '<strong>Azitromicina:</strong> 500mg vía oral cada día.' }
-                ]
-            },
-
-            // --- TRATAMIENTOS ADULTOS: RESPIRATORIO ---
-            'nac-amb-ad': {
-                type: 'treatment', title: 'Neumonía adquirida en la comunidad (Ambulatorio)',
-                boxes: [
-                    { style: 'primary', title: '💊 CURB 65: 0-1', content: '<strong>Amoxicilina:</strong> 500mg vía oral cada 8 horas. (Alternativa: <strong>Amoxicilina + Ácido clavulánico:</strong> 500mg/125mg vía oral cada 8 horas)' },
-                    { style: 'explicit', title: '🔄 Alergia a penicilina', content: '<strong>Doxiciclina o Claritromicina.</strong>' }
-                ]
-            },
-            'nac-hosp-ad': {
-                type: 'treatment', title: 'Neumonía adquirida en la comunidad (Urgencias / Hosp)',
-                boxes: [
-                    { style: 'primary', title: '💊 CURB 65: 0-1 ptos', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas.<br>(O <strong>Cefuroxime:</strong> 750mg vía endovenosa cada 12 horas).' },
-                    { style: 'warning', title: '💊 CURB 65: 2 ptos', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas + <strong>Claritromicina:</strong> 500mg vía endovenosa cada 12 horas.<br><em>Con riesgo de pseudomonas:</em> <strong>Cefepime:</strong> 2 gr vía endovenosa cada 8 horas O <strong>Piperacilina + tazobactam:</strong> 4.5 gr vía endovenoso cada 8 horas + macrólido.' },
-                    { style: 'explicit', title: '⚠️ CURB 65: 3-5 ptos', content: '<strong>Ceftriaxona + Vancomicina:</strong> 20mg/kg vía endovenoso cada 12 horas + <strong>Claritromicina</strong>.' },
-                    { style: 'secondary', title: '📋 Notas', content: 'Alternativa a Cefepime y Piperacilina + tazobactam: Aztreonam. Alternativa a Vancomicina: Linezolid. Reservar Ampicilina + Sulbactam únicamente para Acinetobacter baumannii.' }
-                ]
-            },
-            'nacs-ad': {
-                type: 'treatment', title: 'Neumonía asociada a cuidados de la salud',
-                boxes: [
-                    { style: 'primary', title: '💊 Menos de 5 días de estancia', content: '<strong>Cefepime:</strong> 2 gr vía endovenosa O <strong>Piperacilina + tazobactam:</strong> 4.5gr cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ 5 días o más de estancia', content: 'Adicionar <strong>Amikacina:</strong> 15-20mg/kg vía endovenosa cada día.' },
-                    { style: 'explicit', title: '🔄 Alternativas', content: 'Alternativa a alergias: <strong>Tigeciclina o Aztreonam o Quinolonas</strong>. Otra opción: <strong>Meropenem + Linezolid</strong>.' }
-                ]
-            },
-            'nac-emb-ad': {
-                type: 'treatment', title: 'NAC en embarazada (Hosp/UCI)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Cefepime:</strong> 2gr vía endovenosa cada 8 horas + <strong>Azitromicina:</strong> 500mg cada día.' }
-                ]
-            },
-            'tb-ad': {
-                type: 'treatment', title: 'Tuberculosis pulmonar, pleural o extrapulmonar',
-                boxes: [
-                    { style: 'primary', title: '💊 Fase inicial (56 dosis diarias)', content: '<strong>RHZE (150/75/400/275)</strong><br>30-39 kilos = 2 tabletas<br>40-54 kilos = 3 tabletas<br>55 o más = 4 tabletas.' },
-                    { style: 'warning', title: '💊 Fase continuación (112 dosis)', content: '<strong>Rifampicina e Isoniazida (150/75)</strong> 112 dosis diarias de lunes a sábado.' },
-                    { style: 'secondary', title: '📋 Indicaciones Especiales', content: 'En VIH la segunda fase debe ser hasta completar 196 dosis.<br>TB miliar/meníngea/osteoarticular la duración de la segunda fase es hasta completar 9 a 12 meses.<br>Etambutol requiere dosis ajustadas en falla renal.' }
-                ]
-            },
-
-            // --- TRATAMIENTOS ADULTOS: GINECO ---
-            'aborto-sep-ad': {
-                type: 'treatment', title: 'Aborto séptico',
-                boxes: [
-                    { style: 'primary', title: '💊 Leve', content: '<strong>Penicilina cristalina:</strong> 2 millones UI cada 4 horas.' },
-                    { style: 'warning', title: '⚠️ Moderado / Grave', content: 'Moderado: <strong>Clindamicina:</strong> 600mg vía endovenosa cada 8 horas + <strong>Gentamicina:</strong> 3-4mg/kg vía endovenosa cada día.<br>Grave: <strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas.' },
-                    { style: 'secondary', title: '📋 Indicación principal', content: 'Los antibióticos son necesarios, pero el tratamiento definitivo es la evacuación uterina.' }
-                ]
-            },
-            'bartolino-ad': {
-                type: 'treatment', title: 'Absceso de Bartolino',
-                boxes: [
-                    { style: 'primary', title: '💊 Leve', content: '<strong>Amoxicilina/Ácido clavulánico:</strong> 875/125 mg vía oral cada 12 horas.' },
-                    { style: 'warning', title: '⚠️ Complicado', content: '<strong>Ceftriaxona:</strong> 1gr vía endovenosa cada 12 horas + <strong>Clindamicina:</strong> 500mg vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alergias', content: '<strong>Clindamicina + Gentamicina</strong> O <strong>Ertapenem</strong>.' }
-                ]
-            },
-            'epi-ad': {
-                type: 'treatment', title: 'EPI / Absceso tubo-ovárico',
-                boxes: [
-                    { style: 'primary', title: '💊 Leve - Moderado', content: '<strong>Ceftriaxona:</strong> 1gr vía intramuscular dosis única + <strong>Doxiciclina:</strong> 100mg vía oral cada 12 horas + <strong>Metronidazol:</strong> 500mg vía oral cada 12 horas.' },
-                    { style: 'warning', title: '⚠️ Grave / Absceso', content: '<strong>Clindamicina:</strong> 600mg vía endovenosa cada 8 horas + <strong>Gentamicina:</strong> 3-4mg/kg vía endovenosa cada día.' },
-                    { style: 'explicit', title: '🔄 Alergias', content: '<strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas + <strong>Clindamicina</strong>.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Descarte VIH, Sífilis, Hepatitis B. Trate a la pareja sexual.' }
-                ]
-            },
-            'corio-ad': {
-                type: 'treatment', title: 'Corioamnionitis / Endometritis',
-                boxes: [
-                    { style: 'primary', title: '💊 Leve', content: '<strong>Ampicilina:</strong> 2 gr vía endovenosa cada 6 horas + <strong>Gentamicina:</strong> 2mg/kg vía endovenosa cada día.' },
-                    { style: 'warning', title: '⚠️ Moderado / Severa', content: 'Moderado: <strong>Clindamicina:</strong> 600mg vía endovenosa cada 8 horas + <strong>Gentamicina</strong>.<br>Severa: <strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alergias', content: '<strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas + <strong>Clindamicina</strong> O <strong>Ertapenem + Metronidazol</strong>.' }
-                ]
-            },
-            'mastitis-ad': {
-                type: 'treatment', title: 'Mastitis (Hospitalario)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Clindamicina:</strong> 600mg vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alternativa', content: '<strong>Vancomicina:</strong> 1gr vía endovenoso cada 12 horas.' },
-                    { style: 'secondary', title: '📋 Indicaciones', content: 'Tomar Gram y cultivo de leche materna.' }
-                ]
-            },
-            'iso-gineco-ad': {
-                type: 'treatment', title: 'Infección sitio operatorio (Cesárea / Histerectomía)',
-                boxes: [
-                    { style: 'primary', title: '💊 Superficial', content: '<strong>Cefazolina:</strong> 2gr vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Profunda', content: '<strong>Clindamicina:</strong> 600mg vía endovenosa cada 8 horas + <strong>Gentamicina:</strong> 2mg/kg vía endovenosa cada día.' },
-                    { style: 'explicit', title: '🔄 Alergias', content: '<strong>Aztreonam:</strong> 2gr vía endovenosa cada 8 horas + <strong>Clindamicina</strong>.' }
-                ]
-            },
-
-            // --- TRATAMIENTOS ADULTOS: SEPSIS ---
-            'sepsis-desc-ad': { type: 'treatment', title: 'Sepsis: Origen desconocido', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 2 gr vía endovenosa cada día + <strong>Vancomicina:</strong> 1 gr vía endovenosa cada 12 horas.' }, { style: 'explicit', title: '⚠️ Riesgo Pseudomonas / Anaerobios', content: '<strong>Cefepime + vancomicina</strong> (si riesgo Pseudomonas); agregar metronidazol solo si sospecha anaerobia.' } ] },
-            'sepsis-pulm-ad': { type: 'treatment', title: 'Sepsis: Origen Pulmonar', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 2 gr vía endovenosa cada día + <strong>Claritromicina:</strong> 500 mg vía endovenosa cada día.' }, { style: 'explicit', title: '🔄 Alternativa', content: '<strong>Levofloxacino:</strong> 750 mg vía endovenosa cada día + <strong>Vancomicina:</strong> 1gr vía endovenosa cada 12 horas.' } ] },
-            'sepsis-pulm-hosp-ad': { type: 'treatment', title: 'Sepsis: Origen Pulmonar Adquirida en Hospital', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Piperacilina-tazobactam:</strong> 4.5 gr vía endovenosa cada 6 horas O <strong>Cefepime:</strong> 2 gr vía endovenosa cada 8 horas<br><strong>+ vancomicina</strong>.<br>Meropenem si hay riesgo BLEE.' } ] },
-            'sepsis-abd-ad': { type: 'treatment', title: 'Sepsis: Origen Abdominal', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 2 gr vía endovenosa cada día + <strong>metronidazol:</strong> 500mg vía endovenosa cada 8 horas.' }, { style: 'warning', title: '⚠️ Casos severos', content: '<strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas + <strong>Vancomicina:</strong> 1 gr vía endovenosa cada 12 horas.<br>Meropenem si hay riesgo BLEE.' } ] },
-            'sepsis-uri-ad': { type: 'treatment', title: 'Sepsis: Origen Urinario', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 2 gr vía endovenosa cada día.' }, { style: 'warning', title: '⚠️ Casos severos', content: '<strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas.<br>Meropenem si hay riesgo BLEE.' } ] },
-            'sepsis-piel-ad': { type: 'treatment', title: 'Sepsis: Origen Piel y tejidos blandos', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Piperacilina + tazobactam:</strong> 4.5gr vía endovenosa cada 8 horas + <strong>Vancomicina:</strong> 1 gr vía endovenosa cada 12 horas.' } ] },
-
-            // ==========================================
-            // --- DASHBOARD PEDIATRÍA ---
-            // ==========================================
-            'pediatria-dashboard': {
-                type: 'dashboard', title: 'Módulo Pediatría', emoji: '👶',
-                cards: [
-                    { id: 'uti-ped-view', emoji: '🦠', title: 'Infección de vías urinarias' },
-                    { id: 'iptb-ped-view', emoji: '🩹', title: 'Piel y tejidos blandos' },
-                    { id: 'abdom-ped-view', emoji: '🤮', title: 'Infecciones abdominales y gastrointestinales' },
-                    { id: 'resp-ped-view', emoji: '🫁', title: 'Infección de vías respiratorias' },
-                    { id: 'osteo-ped-view', emoji: '🦴', title: 'Infecciones osteoarticulares' },
-                    { id: 'neuro-ped-view', emoji: '🧠', title: 'Infecciones Sistema Nervioso' },
-                    { id: 'sepsis-ped-view', emoji: '🩸', title: 'Infecciones Sistémicas / Sepsis' }
-                ]
-            },
-
-            // --- MENÚS PEDIATRÍA ---
-            'uti-ped-view': {
-                type: 'menu', emoji: '🦠', title: 'Infección de Vías Urinarias (Pediatría)', stepTitle: 'Seleccione diagnóstico', stepSubtitle: '',
-                cards: [
-                    { id: 'ivu-no-comp-ped', title: 'No complicada (Urgencias / Ambulatorio)' },
-                    { id: 'ivu-comp-ped', title: 'Complicada (Hospitalizado)' }
-                ]
-            },
-            'iptb-ped-view': {
-                type: 'menu', emoji: '🩹', title: 'Piel y tejidos blandos (Pediatría)', stepTitle: 'Seleccione patología', stepSubtitle: '',
-                cards: [
-                    { id: 'celulitis-ped', title: 'Celulitis' },
-                    { id: 'impetigo-ped', title: 'Impétigo / Ectima' },
-                    { id: 'abs-cutaneo-ped', title: 'Absceso cutáneo' },
-                    { id: 'onfalitis-ped', title: 'Onfalitis' },
-                    { id: 'fascitis-ped', title: 'Fascitis necrotizante' }
-                ]
-            },
-            'abdom-ped-view': {
-                type: 'menu', emoji: '🤮', title: 'Abdominales y Gastrointestinales (Pediatría)', stepTitle: 'Seleccione patología', stepSubtitle: '',
-                cards: [
-                    { id: 'apendicitis-ped', title: 'Apendicitis' },
-                    { id: 'gastro-ped', title: 'Gastroenteritis Bacteriana' }
-                ]
-            },
-            'resp-ped-view': {
-                type: 'menu', emoji: '🫁', title: 'Respiratorias (Pediatría)', stepTitle: 'Seleccione patología', stepSubtitle: '',
-                cards: [
-                    { id: 'neumonia-ped', title: 'Neumonía' },
-                    { id: 'tos-ferina-ped', title: 'Tos ferina' },
-                    { id: 'tb-ped', title: 'Tuberculosis' },
-                    { id: 'sinusitis-ped', title: 'Sinusitis' },
-                    { id: 'faringo-ped', title: 'Faringoamigdalitis' },
-                    { id: 'otitis-ped', title: 'Otitis media aguda' }
-                ]
-            },
-            'osteo-ped-view': {
-                type: 'menu', emoji: '🦴', title: 'Osteoarticulares (Pediatría)', stepTitle: 'Seleccione patología', stepSubtitle: '',
-                cards: [
-                    { id: 'artritis-ped', title: 'Artritis Séptica' },
-                    { id: 'osteo-ped', title: 'Osteomielitis' },
-                    { id: 'discitis-ped', title: 'Discitis / Espondilitis' }
-                ]
-            },
-            'neuro-ped-view': {
-                type: 'menu', emoji: '🧠', title: 'Sistema Nervioso (Pediatría)', stepTitle: 'Seleccione patología', stepSubtitle: '',
-                cards: [
-                    { id: 'meningitis-ped', title: 'Meningitis Bacteriana' },
-                    { id: 'abs-cerebral-ped', title: 'Absceso Cerebral' }
-                ]
-            },
-            'sepsis-ped-view': {
-                type: 'menu', emoji: '🩸', title: 'Infecciones Sistémicas (Pediatría)', stepTitle: 'Seleccione origen', stepSubtitle: '',
-                cards: [
-                    { id: 'sepsis-desc-ped', title: 'Origen Desconocido' },
-                    { id: 'sepsis-pulm-ped', title: 'Origen Pulmonar' },
-                    { id: 'sepsis-abd-ped', title: 'Origen Abdominal' },
-                    { id: 'sepsis-uri-ped', title: 'Origen Urinario' },
-                    { id: 'sepsis-piel-ped', title: 'Origen Piel / Tejidos' },
-                    { id: 'sepsis-neo-ped', title: 'Sepsis Neonatal (UCI)' },
-                    { id: 'neutropenia-ped', title: 'Neutropenia febril' }
-                ]
-            },
-
-            // --- TRATAMIENTOS PEDIATRÍA ---
-            'ivu-no-comp-ped': {
-                type: 'treatment', title: 'IVU no complicada (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Baja (Cistitis)', content: '<strong>Nitrofurantoína:</strong> 5-7mg/kg/día cada 6 horas.<br>O <strong>Cefalexina:</strong> 75-100mg/kg/día cada 6 horas.' },
-                    { style: 'warning', title: '💊 Alta (Pielonefritis)', content: '<strong>Cefuroxime Axetil:</strong> 20-30mg/kg/día cada 12 horas (Max 1gr/día).' },
-                    { style: 'explicit', title: '🔄 Alternativas', content: '<strong>Trimetoprima sulfametoxazol:</strong> 8-10mg/kg/día cada 12 horas.<br>O <strong>Amoxicilina + Ácido clavulánico:</strong> 40-45 mg/kg/día cada 8 horas.' }
-                ]
-            },
-            'ivu-comp-ped': {
-                type: 'treatment', title: 'IVU complicada (Hospitalizado Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Baja (Cistitis)', content: '<strong>Cefazolina:</strong> 100mg/kg/día vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '💊 Alta (Pielonefritis)', content: '<strong>Cefuroxime:</strong> 100-150mg/kg/día vía endovenosa cada 8 horas (Max 1.5gr/8 horas).' },
-                    { style: 'explicit', title: '🔄 Alternativas', content: '<strong>Amikacina:</strong> 15mg/kg vía endovenosa cada día.<br>O <strong>Ceftriaxona:</strong> 75-100mg/kg vía endovenosa cada 24 horas.' }
-                ]
-            },
-            'celulitis-ped': {
-                type: 'treatment', title: 'Celulitis (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Leve', content: '<strong>Cefalexina:</strong> 50-75 mg/kg/día vía oral cada 6 horas.' },
-                    { style: 'warning', title: '⚠️ Moderado', content: '<strong>Oxacilina:</strong> 150-200 mg/kg/día vía endovenosa cada 6 horas.<br>O <strong>Clindamicina:</strong> 30-40 mg/kg/día vía endovenosa cada 6 horas.' },
-                    { style: 'explicit', title: '🚨 Grave', content: '<strong>Vancomicina:</strong> 40-60 mg/kg/día vía endovenosa cada 6 horas + <strong>Oxacilina</strong>.' }
-                ]
-            },
-            'impetigo-ped': {
-                type: 'treatment', title: 'Impétigo / Ectima (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Cefalexina:</strong> 50-75 mg/kg/día vía oral cada 6 horas.<br>O <strong>Ungüento de Ácido fusídico al 2%:</strong> Aplicar en las lesiones afectadas de 2 a 3 veces al día.' },
-                    { style: 'explicit', title: '🔄 Alternativas', content: '<strong>Clindamicina:</strong> 30-40 mg/kg/día vía oral cada 8 horas.<br>O <strong>Ungüento de mupirocina Crema 2%:</strong> Aplicar de 2 a 3 veces al día.<br>O <strong>Amoxicilina + Ácido clavulánico:</strong> 40-45 mg/kg/día cada 8 horas.' }
-                ]
-            },
-            'abs-cutaneo-ped': {
-                type: 'treatment', title: 'Absceso cutáneo (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Leve-Moderada (Hospital)', content: '<strong>Clindamicina:</strong> 30-40 mg/kg/día vía endovenosa cada 8 horas.<br>(Si es leve ambulatorio: <strong>Trimetoprima sulfametoxazol:</strong> 8-10mg/kg/día cada 12 horas)' },
-                    { style: 'warning', title: '⚠️ Infección Grave', content: '<strong>Vancomicina:</strong> 40-60 mg/kg/día vía endovenosa cada 6 horas + <strong>Oxacilina</strong>.' }
-                ]
-            },
-            'onfalitis-ped': {
-                type: 'treatment', title: 'Onfalitis (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 No complicada', content: '<strong>Oxacilina:</strong> 150-200 mg/kg/día vía endovenosa cada 6 horas.' },
-                    { style: 'warning', title: '⚠️ Sospecha SAMR o Anaerobios', content: 'Sospecha de SAMR: <strong>Vancomicina:</strong> 40-60 mg/kg/día vía endovenosa cada 6 horas.<br>Sospecha anaerobios: <strong>Vancomicina + Clindamicina:</strong> 30-40 mg/kg/día vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'fascitis-ped': {
-                type: 'treatment', title: 'Fascitis necrotizante (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema Hospitalario / UCI', content: '<strong>Vancomicina:</strong> 40-60 mg/kg/día vía endovenosa cada 6 horas + <strong>Clindamicina:</strong> 30-40 mg/kg/día vía endovenosa cada 8 horas + <strong>Amikacina:</strong> 15mg/kg vía endovenosa cada día.' }
-                ]
-            },
-            'apendicitis-ped': {
-                type: 'treatment', title: 'Apendicitis (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema estándar', content: '<strong>Ceftriaxona:</strong> 50 mg/kg vía endovenosa cada 24 horas + <strong>Metronidazol:</strong> 30 mg/kg/día vía endovenosa cada día.' },
-                    { style: 'warning', title: '⚠️ Riesgo de BLEE', content: '<strong>Meropenem:</strong> 10 mg/kg/dosis vía endovenosa cada 8 horas + <strong>Metronidazol:</strong> 20 mg/kg/día vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'gastro-ped': {
-                type: 'treatment', title: 'Gastroenteritis Bacteriana (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Azitromicina:</strong> 10 mg/kg/día vía oral cada 24 horas.<br>O <strong>Metronidazol:</strong> 30 mg/kg/día vía oral cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ No tolerancia a vía oral o disentería', content: '<strong>Ceftriaxona:</strong> 75-100mg/kg vía endovenosa cada 24 horas.' }
-                ]
-            },
-            'neumonia-ped': {
-                type: 'treatment', title: 'Neumonía (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Ambulatorio (Leve)', content: '<strong>Amoxicilina:</strong> 40-50 mg/kg/día vía oral cada 12 horas.' },
-                    { style: 'warning', title: '🏥 Hospitalización', content: '<strong>Ampicilina:</strong> 150-200 mg/kg/día vía endovenosa cada 6 horas.<br>O <strong>Ceftriaxona:</strong> 50-100 mg/kg/día vía endovenosa cada día.' },
-                    { style: 'explicit', title: '🔄 Sospecha Atípicos / Alergias', content: 'Sospecha atípicos: <strong>Claritromicina:</strong> 15 mg/kg/día vía oral cada 12 horas O <strong>Azitromicina:</strong> 5-10 mg/kg/día vía oral cada día.<br>Segunda opción: <strong>Amoxicilina + Ácido clavulánico:</strong> 40-45 mg/kg/día cada 8 horas.' }
-                ]
-            },
-            'tos-ferina-ped': {
-                type: 'treatment', title: 'Tos Ferina (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Primera opción', content: '<strong>Azitromicina:</strong> 10 mg/kg/día vía oral cada día.<br>O <strong>Claritromicina:</strong> 7.5 mg/kg/dosis vía oral cada 12 horas.' },
-                    { style: 'explicit', title: '🔄 Alergia a Macrólidos', content: '<strong>Trimetoprima sulfametoxazol:</strong> 24–36 mg/kg vía oral cada 12 horas.<br>O <strong>Piperacilina + tazobactam:</strong> 40-50 mg/kg/dosis vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'tb-ped': {
-                type: 'treatment', title: 'Tuberculosis (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Fase inicial (56 dosis)', content: '<strong>RHZ (75/50/150 mg) + Etambutol (100mg)</strong><br>4-7 kg = 1 Tableta RHZ + 1 Tableta E.<br>8-11 kg = 2 Tabletas RHZ + 2 Tabletas E.<br>12-15 kg = 3 Tabletas RHZ + 3 Tabletas E.<br>16-20 kg = 4 Tabletas RHZ + 4 Tabletas E.<br>21-24 kg = 4 Tabletas RHZ + 5 Tabletas E.' },
-                    { style: 'warning', title: '💊 Fase continuación (112 dosis)', content: '<strong>Rifampicina e Isoniazida 75/50mg</strong><br>4-7 kg = 1 Tableta<br>8-11 kg = 2 Tabletas<br>12-15 kg = 3 Tabletas<br>16-24 kg = 4 Tabletas.<br>112 dosis diarias de lunes a sábado.' }
-                ]
-            },
-            'sinusitis-ped': {
-                type: 'treatment', title: 'Sinusitis (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Amoxicilina:</strong> 40-50 mg/kg/día vía oral cada 12 horas.<br>(Segunda opción: <strong>Amoxicilina + Ácido clavulánico:</strong> 40-45 mg/kg/día cada 8 horas)' },
-                    { style: 'explicit', title: '🔄 Alergias a primera línea', content: '<strong>Azitromicina:</strong> 10 mg/kg/día vía oral cada 24 horas.<br>O <strong>Cefuroxime Axetil:</strong> 20-30mg/kg/día cada 12 horas.' }
-                ]
-            },
-            'faringo-ped': {
-                type: 'treatment', title: 'Faringoamigdalitis (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Amoxicilina:</strong> 40-50 mg/kg/día vía oral cada 12 horas.<br>O <strong>Penicilina Benzatinica:</strong> <27 kg: 600.000 UI, ≥27 kg: 1.200.000 UI vía intramuscular, dosis única.' },
-                    { style: 'explicit', title: '🔄 Alergia Grave', content: '<strong>Claritromicina:</strong> 7,5 mg/kg/dosis vía oral cada 12 horas.<br>O <strong>Cefalexina:</strong> 20 mg/kg/dosis vía oral cada 12 horas.' }
-                ]
-            },
-            'otitis-ped': {
-                type: 'treatment', title: 'Otitis Media Aguda (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema', content: '<strong>Amoxicilina:</strong> 80-90 mg/kg/día vía oral cada 12 horas.<br>(Alternativa: <strong>Amoxicilina + Ácido clavulánico:</strong> 80-90 mg/kg/día cada 8 horas).' },
-                    { style: 'explicit', title: '🔄 Alergia Grave', content: '<strong>Claritromicina:</strong> 7,5 mg/kg/dosis vía oral cada 12 horas.<br>O <strong>Cefalexina:</strong> 20 mg/kg/dosis vía oral cada 12 horas.' }
-                ]
-            },
-            'artritis-ped': {
-                type: 'treatment', title: 'Artritis Séptica (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Sin sospecha de SARM', content: '<strong>Cefazolina:</strong> 150-200 mg/kg/día vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Con sospecha de SARM', content: '<strong>Clindamicina:</strong> 30-40 mg/kg/día vía endovenosa cada 8 horas.<br>O <strong>Vancomicina:</strong> 60-70 mg/kg/día vía endovenosa cada 8 horas.' },
-                    { style: 'explicit', title: '🔄 Alternativa', content: '<strong>Trimetoprima sulfametoxazol:</strong> 8-12 mg/kg/día vía oral cada 12 horas.' }
-                ]
-            },
-            'osteo-ped': {
-                type: 'treatment', title: 'Osteomielitis (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Sin sospecha de SARM', content: '<strong>Cefazolina:</strong> 150-200 mg/kg/día vía endovenosa cada 8 horas.' },
-                    { style: 'warning', title: '⚠️ Con sospecha de SARM', content: '<strong>Clindamicina:</strong> 30-40 mg/kg/día vía endovenosa cada 8 horas.<br>O <strong>Vancomicina:</strong> 60-70 mg/kg/día vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'discitis-ped': {
-                type: 'treatment', title: 'Discitis / Espondilitis (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Sin sospecha de SARM', content: '<strong>Ceftriaxona:</strong> 50-75 mg/kg/día vía endovenosa cada 12 horas.' },
-                    { style: 'warning', title: '⚠️ Con sospecha de SARM', content: '<strong>Vancomicina:</strong> 60-70 mg/kg/día vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'meningitis-ped': {
-                type: 'treatment', title: 'Meningitis Bacteriana (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema Hospitalario / UCI', content: '<strong>Ceftriaxona:</strong> 100mg/kg/día vía endovenosa cada 12 horas + <strong>Vancomicina:</strong> 60mg/kg/día vía endovenosa cada 8 horas.<br><em>Neonatos: Adicionar Gentamicina.</em>' }
-                ]
-            },
-            'abs-cerebral-ped': {
-                type: 'treatment', title: 'Absceso Cerebral (Pediatría)',
-                boxes: [
-                    { style: 'primary', title: '💊 Esquema Hospitalario / UCI', content: '<strong>Ceftriaxona:</strong> 100mg/kg/día vía endovenosa cada 12 horas + <strong>Vancomicina:</strong> 60mg/kg/día vía endovenosa cada 8 horas + <strong>Metronidazol:</strong> 30mg/kg/día vía endovenosa cada 8 horas.' }
-                ]
-            },
-            'sepsis-desc-ped': { type: 'treatment', title: 'Sepsis Pediatría: Origen Desconocido', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 75-100 mg/kg/día vía endovenosa cada 12 horas + <strong>Vancomicina:</strong> 15 mg/kg/dosis vía endovenosa cada 6 horas.' }, { style: 'explicit', title: '🔄 Alternativas', content: '<strong>Piperacilina + tazobactam:</strong> 300-400 mg/kg/día vía endovenosa cada 8 horas.<br>O <strong>Cefepime:</strong> 150 mg/kg/día vía endovenosa cada 8 horas.' } ] },
-            'sepsis-pulm-ped': { type: 'treatment', title: 'Sepsis Pediatría: Origen Pulmonar', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 75-100 mg/kg/día vía endovenosa cada 12 horas + <strong>Vancomicina:</strong> 15 mg/kg/dosis vía endovenosa cada 6 horas.' }, { style: 'explicit', title: '🔄 Alternativas', content: '<strong>Piperacilina + tazobactam:</strong> 300-400 mg/kg/día vía endovenosa cada 8 horas.' } ] },
-            'sepsis-abd-ped': { type: 'treatment', title: 'Sepsis Pediatría: Origen Abdominal', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Piperacilina + tazobactam:</strong> 300-400 mg/kg/día vía endovenosa cada 8 horas.' }, { style: 'explicit', title: '🔄 Alternativas', content: '<strong>Ceftriaxona:</strong> 50 mg/kg vía endovenosa cada 24 horas + <strong>Metronidazol:</strong> 30 mg/kg/día vía endovenosa cada día.' } ] },
-            'sepsis-uri-ped': { type: 'treatment', title: 'Sepsis Pediatría: Origen Urinario', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Ceftriaxona:</strong> 75-100 mg/kg/día vía endovenosa cada 12 horas.' }, { style: 'explicit', title: '🔄 Alternativas', content: '<strong>Amikacina:</strong> 15 mg/kg/día vía endovenosa cada día.<br>O <strong>Piperacilina + tazobactam:</strong> 300-400 mg/kg/día vía endovenosa cada 8 horas.<br>O <strong>Meropenem:</strong> 60 mg/kg/día vía endovenosa cada 8 horas.' } ] },
-            'sepsis-piel-ped': { type: 'treatment', title: 'Sepsis Pediatría: Piel y Tejidos Blandos', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Cefazolina:</strong> 100-150 mg/kg/día vía endovenosa cada 8 horas.<br>O <strong>Oxacilina:</strong> 150-200 mg/kg/día vía endovenosa cada 6 horas.' }, { style: 'warning', title: '⚠️ Riesgo SAMR', content: '<strong>Vancomicina:</strong> 60 mg/kg/día vía endovenosa cada 6 horas.<br>O <strong>Clindamicina:</strong> 30-40 mg/kg/día vía endovenosa cada 8 horas.<br>Alternativa: <strong>Piperacilina + tazobactam:</strong> 300-400 mg/kg/día vía endovenosa cada 8 horas.' } ] },
-            'sepsis-neo-ped': { type: 'treatment', title: 'Sepsis Neonatal (UCI)', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Ampicilina:</strong> 200 mg/kg/día vía endovenosa cada 6 horas + <strong>Gentamicina:</strong> 4-5 mg/kg/día vía endovenosa cada día.' } ] },
-            'neutropenia-ped': { type: 'treatment', title: 'Neutropenia Febril (Pediatría)', boxes: [ { style: 'primary', title: '💊 Esquema', content: '<strong>Cefepime:</strong> 150 mg/kg/día vía endovenosa cada 8 horas.' }, { style: 'warning', title: '⚠️ Alternativas', content: '<strong>Piperacilina + tazobactam:</strong> 300-400 mg/kg/día vía endovenosa cada 8 horas.<br>O <strong>Meropenem:</strong> 10 mg/kg/dosis vía endovenosa cada 8 horas + <strong>Vancomicina:</strong> 15 mg/kg/dosis vía endovenosa cada 6 horas.' } ] }
         };
 
         // ==========================================
@@ -1409,7 +701,7 @@
     "tratamiento": [
      {
       "sitio": "Cistitis",
-      "esquema": "<strong>Nitrofurantoína</strong> o <strong>trimetoprima-sulfametoxazol</strong> si es Sensible."
+      "esquema": "<strong>Nitrofurantoína</strong>, o <strong>trimetoprima-sulfametoxazol</strong> si es Sensible."
      },
      {
       "sitio": "Pielonefritis o infección urinaria complicada",
@@ -1439,7 +731,7 @@
      },
      {
       "sitio": "Fuera de la vía urinaria o bacteriemia",
-      "esquema": "<strong>Ertapenem</strong> o <strong>meropenem</strong>. Si está crítico o tiene hipoalbuminemia: meropenem. Paso a vía oral con trimetoprima-sulfametoxazol o una fluoroquinolona si son Sensibles y hay estabilidad clínica."
+      "esquema": "<strong>Ertapenem</strong> o <strong>meropenem</strong>. Si está crítico o tiene albúmina menor de 2,5 g/dL: meropenem. Paso a vía oral con trimetoprima-sulfametoxazol o una fluoroquinolona si son Sensibles y hay estabilidad clínica."
      }
     ],
     "evitar": "Piperacilina-tazobactam y cefepime fuera de la vía urinaria, <strong>aunque el reporte diga Sensible</strong>. Amoxicilina-clavulánico y cefoxitina. Reserve ceftazidima-avibactam, ceftolozano-tazobactam y los demás betalactámicos nuevos para gérmenes resistentes a carbapenémicos."
@@ -1528,7 +820,7 @@
      },
      {
       "sitio": "Fuera de la vía urinaria o bacteriemia",
-      "esquema": "<strong>Ertapenem</strong> o <strong>meropenem</strong> (meropenem si está crítico o con hipoalbuminemia)."
+      "esquema": "<strong>Ertapenem</strong> o <strong>meropenem</strong> (meropenem si está crítico o con albúmina menor de 2,5 g/dL)."
      }
     ],
     "evitar": "Piperacilina-tazobactam y cefepime fuera de la vía urinaria aunque salgan Sensibles. Fosfomicina oral.",
@@ -1578,11 +870,11 @@
      },
      {
       "sitio": "Cistitis",
-      "esquema": "<strong>Amikacina</strong> o trimetoprima-sulfametoxazol, una fluoroquinolona o nitrofurantoína si son Sensibles."
+      "esquema": "<strong>Amikacina</strong>, o trimetoprima-sulfametoxazol, una fluoroquinolona o nitrofurantoína si son Sensibles."
      },
      {
       "sitio": "Pielonefritis o infección urinaria complicada",
-      "esquema": "Trimetoprima-sulfametoxazol o una fluoroquinolona si son Sensibles; si no, cualquiera de los betalactámicos nuevos preferidos. Alternativa: aminoglucósido."
+      "esquema": "Trimetoprima-sulfametoxazol o una fluoroquinolona si son Sensibles; si no, cualquiera de los betalactámicos nuevos preferidos. Alternativa: aminoglucósido una vez al día."
      }
     ],
     "evitar": "Tigeciclina en bacteriemia o infección urinaria (niveles bajos en sangre y orina). Carbapenémico en monoterapia. Si hay falla con ceftazidima-avibactam, pida nueva prueba de sensibilidad: en Colombia circulan variantes de KPC y PAC-2 que la inactivan."
@@ -1596,7 +888,7 @@
     "tratamiento": [
      {
       "sitio": "Infección invasiva",
-      "esquema": "Preferidos: <strong>aztreonam-avibactam</strong> o <strong>cefiderocol</strong>. Si no están disponibles: <strong>ceftazidima-avibactam</strong> <strong>más aztreonam</strong> (esquema recomendado por el Instituto Nacional de Salud para metalobetalactamasas y coproducción KPC más metalobetalactamasa)."
+      "esquema": "Preferidos: <strong>aztreonam-avibactam</strong> o <strong>cefiderocol</strong>. Si no están disponibles: <strong>ceftazidima-avibactam</strong> <strong>más aztreonam</strong>, administrados al mismo tiempo (esquema recomendado por el Instituto Nacional de Salud para metalobetalactamasas y coproducción KPC más metalobetalactamasa)."
      },
      {
       "sitio": "Fuera de sangre y orina",
@@ -1669,7 +961,7 @@
     "tratamiento": [
      {
       "sitio": "Infección invasiva",
-      "esquema": "<strong>Cefepime</strong>; si la concentración inhibitoria mínima es de 4 a 8 µg/mL, a dosis optimizada."
+      "esquema": "<strong>Cefepime</strong>. Si la concentración inhibitoria mínima es 4 a 8 µg/mL, adminístrelo en infusión extendida de 3 horas."
      },
      {
       "sitio": "Cistitis",
@@ -1750,7 +1042,7 @@
     "tratamiento": [
      {
       "sitio": "Proteus mirabilis Sensible a ampicilina",
-      "esquema": "<strong>Ampicilina</strong> o <strong>amoxicilina</strong>."
+      "esquema": "<strong>Ampicilina</strong> o <strong>amoxicilina</strong> vía oral."
      },
      {
       "sitio": "Infección invasiva",
@@ -1828,7 +1120,7 @@
     "tratamiento": [
      {
       "sitio": "No complicada",
-      "esquema": "<strong>Ciprofloxacino</strong> o <strong>azitromicina</strong>."
+      "esquema": "<strong>Ciprofloxacino</strong>, o <strong>azitromicina</strong> como arriba."
      },
      {
       "sitio": "Complicada",
@@ -1914,7 +1206,7 @@
      },
      {
       "sitio": "Bacteriemia",
-      "esquema": "<strong>Ceftriaxona</strong>; paso a ciprofloxacino oral. Si hay infección endovascular, tratamiento prolongado con infectología."
+      "esquema": "<strong>Ceftriaxona</strong>; paso a ciprofloxacino oral."
      }
     ]
    },
@@ -1931,7 +1223,7 @@
      },
      {
       "sitio": "Bacteriemia",
-      "esquema": "<strong>Ceftriaxona</strong>. Si hay infección endovascular, tratamiento prolongado con infectología."
+      "esquema": "<strong>Ceftriaxona</strong>."
      }
     ],
     "evitar": "Fluoroquinolonas."
@@ -1945,7 +1237,7 @@
     "tratamiento": [
      {
       "sitio": "Gastroenteritis en grupo de riesgo",
-      "esquema": "<strong>Azitromicina</strong> o ciprofloxacino si es Sensible."
+      "esquema": "<strong>Azitromicina</strong>, o ciprofloxacino si es Sensible."
      },
      {
       "sitio": "Bacteriemia o infección invasiva",
@@ -2080,7 +1372,7 @@
     "tratamiento": [
      {
       "sitio": "Infección invasiva",
-      "esquema": "<strong>Cefepime</strong>, <strong>piperacilina-tazobactam</strong> o <strong>ceftazidima</strong>."
+      "esquema": "<strong>Cefepime</strong>, <strong>piperacilina-tazobactam</strong> o <strong>ceftazidima</strong>, de preferencia en infusión extendida."
      },
      {
       "sitio": "Paso a vía oral",
@@ -2098,7 +1390,7 @@
     "tratamiento": [
      {
       "sitio": "Infección invasiva",
-      "esquema": "El betalactámico que salió Sensible, a dosis alta."
+      "esquema": "El betalactámico que salió Sensible, a dosis alta y en infusión extendida."
      }
     ]
    },
@@ -2119,7 +1411,7 @@
      },
      {
       "sitio": "Cistitis",
-      "esquema": "Aminoglucósido (tobramicina o amikacina) si es Sensible."
+      "esquema": "Aminoglucósido en dosis única (tobramicina o amikacina) si es Sensible."
      }
     ],
     "evitar": "Polimixinas en monoterapia cuando hay un betalactámico nuevo activo. La resistencia puede emerger durante el tratamiento con cualquiera de ellos: repita cultivos si hay falla."
@@ -2203,7 +1495,7 @@
      },
      {
       "sitio": "Puente mientras se consigue",
-      "esquema": "<strong>Ampicilina-sulbactam</strong> a dosis alta combinada con un segundo agente activo: polimixina B, minociclina, tigeciclina o cefiderocol."
+      "esquema": "<strong>Ampicilina-sulbactam</strong> a dosis alta, combinada con un segundo agente activo: polimixina B, minociclina, tigeciclina o cefiderocol."
      },
      {
       "sitio": "Resistente a sulbactam-durlobactam",
@@ -2250,7 +1542,7 @@
     "tratamiento": [
      {
       "sitio": "Infección invasiva",
-      "esquema": "<strong>Cefiderocol</strong> o <strong>trimetoprima-sulfametoxazol</strong>, idealmente con un segundo agente (minociclina o levofloxacino) hasta la mejoría clínica."
+      "esquema": "<strong>Cefiderocol</strong>, o <strong>trimetoprima-sulfametoxazol</strong>, idealmente con un segundo agente (minociclina o levofloxacino) hasta la mejoría clínica."
      },
      {
       "sitio": "Paso a vía oral",
@@ -2468,7 +1760,7 @@
   ],
   "perlas": [
    "La prueba molecular no da antibiograma: ante falla terapéutica, tome cultivo antes de volver a tratar.",
-   "Infección diseminada: ceftriaxona, con hospitalización."
+   "Infección diseminada: ceftriaxona."
   ],
   "fuentes": [
    "clsi2026",
@@ -2634,7 +1926,7 @@
     "nivel": "ok",
     "pregunta": "¿Es Sensible a tetraciclina?",
     "patron": "Tetraciclina Sensible.",
-    "significado": "La doxiciclina es de primera línea.",
+    "significado": "La doxiciclina en dosis única es de primera línea.",
     "tratamiento": [
      {
       "sitio": "Adultos",
@@ -2642,7 +1934,7 @@
      },
      {
       "sitio": "Niños y embarazadas",
-      "esquema": "El Grupo Mundial de Trabajo para el Control del Cólera acepta doxiciclina en todos los grupos; la azitromicina es la alternativa."
+      "esquema": "El Grupo Mundial de Trabajo para el Control del Cólera acepta doxiciclina en dosis única en todos los grupos; la azitromicina es la alternativa."
      }
     ]
    },
@@ -2655,7 +1947,7 @@
     "tratamiento": [
      {
       "sitio": "Tratamiento",
-      "esquema": "<strong>Azitromicina</strong> o <strong>ciprofloxacino</strong> si es Sensible."
+      "esquema": "<strong>Azitromicina</strong>, o <strong>ciprofloxacino</strong> si es Sensible."
      }
     ]
    }
@@ -2693,7 +1985,7 @@
      },
      {
       "sitio": "Grave o persistente",
-      "esquema": "<strong>Doxiciclina</strong> o <strong>azitromicina</strong> o ciprofloxacino si es Sensible."
+      "esquema": "<strong>Doxiciclina</strong> o <strong>azitromicina</strong>, o ciprofloxacino si es Sensible."
      }
     ]
    },
@@ -2746,7 +2038,7 @@
     "tratamiento": [
      {
       "sitio": "Infección grave",
-      "esquema": "<strong>Penicilina G cristalina</strong> o cefazolina."
+      "esquema": "<strong>Penicilina G cristalina</strong>, o cefazolina."
      }
     ]
    },
@@ -2781,7 +2073,7 @@
     "tratamiento": [
      {
       "sitio": "Bacteriemia",
-      "esquema": "<strong>Vancomicina</strong>. Alternativa: <strong>daptomicina</strong>. Con falla o concentración inhibitoria mínima de 2: considere ceftarolina o daptomicina."
+      "esquema": "<strong>Vancomicina</strong> guiada por área bajo la curva o por niveles. Alternativa: <strong>daptomicina</strong>. Con falla o concentración inhibitoria mínima de 2: considere ceftarolina o daptomicina."
      },
      {
       "sitio": "Neumonía",
@@ -2789,7 +2081,7 @@
      },
      {
       "sitio": "Piel y tejidos blandos por vía oral",
-      "esquema": "<strong>Trimetoprima-sulfametoxazol</strong>, <strong>doxiciclina</strong> o <strong>clindamicina</strong> solo si la prueba D es negativa."
+      "esquema": "<strong>Trimetoprima-sulfametoxazol</strong>, <strong>doxiciclina</strong>, o <strong>clindamicina</strong> solo si la prueba D es negativa."
      }
     ],
     "evitar": "Cualquier betalactámico distinto de ceftarolina. Daptomicina en neumonía: el surfactante la inactiva."
@@ -2810,7 +2102,7 @@
   ],
   "perlas": [
    "<strong>Prueba D:</strong> si es Resistente a eritromicina y Sensible a clindamicina, revise la prueba D. Si es positiva hay resistencia inducible (gen erm): no use clindamicina aunque diga Sensible.",
-   "Bacteriemia: hemocultivos de control cada 24 a 48 horas, ecocardiograma, retiro de catéteres y búsqueda del foco. No complicada: mínimo 14 días desde el primer hemocultivo negativo; complicada: 4 a 6 semanas.",
+   "Bacteriemia: hemocultivos de control cada 24 a 48 horas, ecocardiograma, retiro de catéteres y búsqueda del foco.",
    "Rifampicina nunca en monoterapia: la resistencia aparece en días.",
    "La interconsulta con infectología en bacteriemia por Staphylococcus aureus disminuye la mortalidad."
   ],
@@ -2888,11 +2180,11 @@
     "tratamiento": [
      {
       "sitio": "Bacteriemia por catéter",
-      "esquema": "Retire el catéter. <strong>Vancomicina</strong> guiada por niveles; el retiro del catéter permite un curso corto si no hay complicaciones."
+      "esquema": "Retire el catéter. <strong>Vancomicina</strong> guiada por niveles."
      },
      {
       "sitio": "Infección de prótesis o válvula protésica",
-      "esquema": "<strong>Vancomicina más rifampicina</strong> (más gentamicina al inicio en válvula protésica), con infectología y cirugía."
+      "esquema": "<strong>Vancomicina más rifampicina</strong> (más gentamicina en válvula protésica), con infectología y cirugía."
      }
     ]
    }
@@ -2990,7 +2282,7 @@
     "tratamiento": [
      {
       "sitio": "Infección invasiva",
-      "esquema": "<strong>Linezolid</strong> o <strong>daptomicina</strong> a dosis alta (en Enterococcus faecium, daptomicina solo si la concentración inhibitoria mínima es ≤4 µg/mL)."
+      "esquema": "<strong>Linezolid</strong>, o <strong>daptomicina</strong> a dosis alta (en Enterococcus faecium úsela solo si la concentración inhibitoria mínima es ≤4 µg/mL)."
      },
      {
       "sitio": "Cistitis",
@@ -3065,7 +2357,7 @@
     "tratamiento": [
      {
       "sitio": "Tratamiento",
-      "esquema": "<strong>Penicilina G cristalina</strong> o ceftriaxona. La dexametasona se inicia antes o con la primera dosis de antibiótico."
+      "esquema": "<strong>Penicilina G cristalina</strong>, o ceftriaxona. La dexametasona se inicia antes o con la primera dosis de antibiótico."
      }
     ]
    },
@@ -3213,7 +2505,7 @@
     "tratamiento": [
      {
       "sitio": "Endocarditis de válvula nativa",
-      "esquema": "<strong>Penicilina G</strong> o <strong>ceftriaxona</strong>; en casos seleccionados no complicados, la adición de gentamicina permite acortar el tratamiento."
+      "esquema": "<strong>Penicilina G</strong> o <strong>ceftriaxona</strong>; en casos seleccionados no complicados puede combinarse con gentamicina."
      }
     ]
    },
@@ -3226,7 +2518,7 @@
     "tratamiento": [
      {
       "sitio": "Endocarditis de válvula nativa",
-      "esquema": "<strong>Penicilina G</strong> más <strong>gentamicina</strong> al inicio; o <strong>ceftriaxona</strong> si es Sensible."
+      "esquema": "<strong>Penicilina G</strong> más <strong>gentamicina</strong>; o <strong>ceftriaxona</strong> si es Sensible."
      }
     ]
    },
@@ -3239,7 +2531,7 @@
     "tratamiento": [
      {
       "sitio": "Endocarditis",
-      "esquema": "<strong>Ampicilina</strong> o <strong>penicilina G</strong> más <strong>gentamicina</strong> o vancomicina; con infectología."
+      "esquema": "<strong>Ampicilina</strong> o <strong>penicilina G</strong> más <strong>gentamicina</strong>, o vancomicina; con infectología."
      }
     ]
    }
@@ -3275,7 +2567,7 @@
     "tratamiento": [
      {
       "sitio": "Meningitis o bacteriemia",
-      "esquema": "<strong>Ampicilina</strong>, con o sin <strong>gentamicina</strong> los primeros días."
+      "esquema": "<strong>Ampicilina</strong>, con o sin <strong>gentamicina</strong>."
      },
      {
       "sitio": "Embarazo",
@@ -3332,7 +2624,7 @@
     "tratamiento": [
      {
       "sitio": "Tratamiento",
-      "esquema": "<strong>Penicilina G</strong> o <strong>ampicilina</strong>; en actinomicosis, tratamiento prolongado."
+      "esquema": "<strong>Penicilina G</strong> o <strong>ampicilina</strong>; en actinomicosis, tratamiento prolongado de 6 a 12 meses."
      }
     ],
     "evitar": "Metronidazol."
@@ -3518,11 +2810,11 @@
     "tratamiento": [
      {
       "sitio": "Inicio en candidemia",
-      "esquema": "<strong>Equinocandina</strong> (caspofungina, micafungina o anidulafungina)."
+      "esquema": "<strong>Equinocandina</strong> (caspofungina, o micafungina)."
      },
      {
       "sitio": "Desescalamiento a los 5 a 7 días",
-      "esquema": "Si está estable, con hemocultivos negativos: <strong>fluconazol</strong>."
+      "esquema": "Si está estable, con hemocultivos negativos: <strong>fluconazol</strong> vía oral."
      }
     ]
    },
@@ -3568,7 +2860,7 @@
    }
   ],
   "perlas": [
-   "Siempre en candidemia: retirar el catéter venoso central, hemocultivos de control hasta negativizar, valoración oftalmológica (fondo de ojo) y considerar ecocardiograma. Duración: 14 días desde el primer hemocultivo negativo si no hay complicaciones metastásicas.",
+   "Siempre en candidemia: retirar el catéter venoso central, hemocultivos de control hasta negativizar, valoración oftalmológica (fondo de ojo) y considerar ecocardiograma.",
    "Las equinocandinas no alcanzan concentraciones útiles en orina ni en ojo: en cistitis por Candida sintomática use fluconazol si es Sensible.",
    "Candidozyma auris (antes Candida auris) causa brotes en hospitales colombianos, suele ser Resistente a fluconazol y puede identificarse mal con métodos automatizados antiguos: confirme la especie y notifique."
   ],
@@ -3602,11 +2894,11 @@
     "tratamiento": [
      {
       "sitio": "Inicio en candidemia",
-      "esquema": "<strong>Equinocandina</strong>."
+      "esquema": "<strong>Equinocandina</strong> vía endovenosa."
      },
      {
       "sitio": "Desescalamiento a los 5 a 7 días",
-      "esquema": "Si está estable, con hemocultivos negativos: <strong>fluconazol</strong>."
+      "esquema": "Si está estable, con hemocultivos negativos: <strong>fluconazol</strong> vía oral."
      }
     ]
    },
@@ -3653,7 +2945,7 @@
   ],
   "perlas": [
    "En neutropenia, Candida tropicalis puede dar candidiasis diseminada crónica (hepatoesplénica): busque lesiones al recuperar los neutrófilos.",
-   "Siempre en candidemia: retirar el catéter venoso central, hemocultivos de control hasta negativizar, valoración oftalmológica (fondo de ojo) y considerar ecocardiograma. Duración: 14 días desde el primer hemocultivo negativo si no hay complicaciones metastásicas.",
+   "Siempre en candidemia: retirar el catéter venoso central, hemocultivos de control hasta negativizar, valoración oftalmológica (fondo de ojo) y considerar ecocardiograma.",
    "Las equinocandinas no alcanzan concentraciones útiles en orina ni en ojo: en cistitis por Candida sintomática use fluconazol si es Sensible.",
    "Candidozyma auris (antes Candida auris) causa brotes en hospitales colombianos, suele ser Resistente a fluconazol y puede identificarse mal con métodos automatizados antiguos: confirme la especie y notifique."
   ],
@@ -3739,7 +3031,7 @@
   "perlas": [
    "En hospitales colombianos la resistencia de Candida parapsilosis a fluconazol llega a 28 a 38 %: no inicie con fluconazol; espere el antifungigrama.",
    "Retirar el catéter es aún más importante en Candida parapsilosis: forma biopelículas en dispositivos.",
-   "Siempre en candidemia: retirar el catéter venoso central, hemocultivos de control hasta negativizar, valoración oftalmológica (fondo de ojo) y considerar ecocardiograma. Duración: 14 días desde el primer hemocultivo negativo si no hay complicaciones metastásicas.",
+   "Siempre en candidemia: retirar el catéter venoso central, hemocultivos de control hasta negativizar, valoración oftalmológica (fondo de ojo) y considerar ecocardiograma.",
    "Las equinocandinas no alcanzan concentraciones útiles en orina ni en ojo: en cistitis por Candida sintomática use fluconazol si es Sensible.",
    "Candidozyma auris (antes Candida auris) causa brotes en hospitales colombianos, suele ser Resistente a fluconazol y puede identificarse mal con métodos automatizados antiguos: confirme la especie y notifique."
   ],
@@ -3765,19 +3057,233 @@
         });
 
         // ==========================================
+        // 1C. ADULTOS Y PEDIATRÍA DESDE GOOGLE SHEETS
+        // La hoja de cálculo es la única fuente de estos módulos: lo que se edite allí
+        // aparece al abrir o recargar la página. La hoja debe estar compartida como
+        // "Cualquier persona con el enlace puede ver".
+        // Reglas de lectura de cada pestaña:
+        //   - Fila que empieza por "Terapia..." o "Manejo..." sin más columnas → nueva categoría.
+        //   - Fila cuya columna B dice "Diagnóstico" → encabezados (títulos de los recuadros).
+        //   - Fila que empieza por "NOTA" → nota de la categoría.
+        //   - Cualquier otra fila con texto en la columna B → diagnóstico.
+        // Columnas: B Diagnóstico, C Escenario, D-F Esquemas, G Duración, H Observaciones, I Fuente.
+        // ==========================================
+        const PROTOCOLO_SHEET_ID = '17L8wa46f_SitVJk1ywglzKnGOlT_ySBBpVbBUluYpVY';
+        const PROTOCOLO_PESTANAS = [
+            { gid: '0', prefijo: 'ad', dashboard: 'adultos-dashboard', titulo: 'Módulo Adultos', emoji: '🧑‍⚕️', etiqueta: 'Adultos' },
+            { gid: '758694509', prefijo: 'ped', dashboard: 'pediatria-dashboard', titulo: 'Módulo Pediatría', emoji: '👶', etiqueta: 'Pediatría' }
+        ];
+        const PROTOCOLO_CACHE_KEY = 'pura-protocolo-sheets-v1';
+        const ENCABEZADOS_DEFECTO = ['Diagnóstico', 'Escenario', 'Primera línea', 'Segunda línea', 'Alergias', 'Duración', 'Observaciones', 'Fuente'];
+        // Estilo e icono del recuadro según la columna (índice dentro de B..I)
+        const ESTILO_COLUMNA = { 2: ['primary', '💊'], 3: ['explicit', '🔄'], 4: ['warning', '⚠️'], 5: ['secondary', '⏱️'], 6: ['secondary', '📋'] };
+        const EMOJI_CATEGORIA = [['urinari', '🦠'], ['piel', '🩹'], ['abdominal', '🤮'], ['osteo', '🦴'], ['neuro', '🧠'], ['nervioso', '🧠'],
+            ['otorrino', '👂'], ['respirat', '🫁'], ['gineco', '🤰'], ['dispositivo', '🩺'], ['sepsis', '🩸'], ['sistemic', '🩸']];
+
+        let estadoProtocolo = 'cargando';   // 'cargando' | 'listo' | 'error'
+        let protocoloFecha = null;          // momento en que se descargaron los datos mostrados
+        let protocoloDesdeCopia = false;    // true si se muestran datos guardados por falta de conexión
+        let clavesProtocolo = [];           // vistas generadas, para poder reconstruirlas
+
+        const sinTildes = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        const escaparHTML = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        const slug = (s) => sinTildes(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
+
+        // Texto de celda → HTML: saltos de línea, subtítulos ("Leve:") y nombre del fármaco antes de ":" en negrita
+        function formatearCelda(texto) {
+            const lineas = escaparHTML(texto).split(/\r?\n/).map(l => l.trim());
+            return lineas.join('\n').replace(/\n{3,}/g, '\n\n').trim().split('\n').map(l => {
+                if (!l) return '';
+                if (l.endsWith(':') && l.length < 90) return `<strong>${l}</strong>`;
+                const m = l.match(/^([^:]{2,45}):\s*(.+)$/);
+                return m && !/https?$/i.test(m[1]) ? `<strong>${m[1]}:</strong> ${m[2]}` : l;
+            }).join('<br>');
+        }
+        function formatearFuente(texto) {
+            return escaparHTML(texto).trim().replace(/\r?\n/g, '<br>')
+                .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+        }
+        function tituloCategoria(texto) {
+            const t = texto.replace(/^terapia\s+emp[ií]rica\s+(de\s+)?/i, '').replace(/\.\s*$/, '').trim();
+            return t.charAt(0).toUpperCase() + t.slice(1);
+        }
+        function emojiCategoria(texto) {
+            const n = sinTildes(texto);
+            const par = EMOJI_CATEGORIA.find(([clave]) => n.includes(clave));
+            return par ? par[1] : '💊';
+        }
+
+        // Lee una pestaña con JSONP (funciona también al abrir el HTML como archivo local, sin servidor)
+        function leerPestana(gid) {
+            return new Promise((resolve, reject) => {
+                const cb = `__puraHoja_${gid}_${Date.now()}`;
+                const script = document.createElement('script');
+                const timer = setTimeout(() => fin(new Error('Tiempo de espera agotado')), 15000);
+                function fin(err, tabla) {
+                    clearTimeout(timer); window[cb] = () => {}; script.remove();
+                    err ? reject(err) : resolve(tabla);
+                }
+                window[cb] = (resp) => resp && resp.status === 'ok' ? fin(null, resp.table) : fin(new Error('Respuesta inválida de Google Sheets'));
+                script.onerror = () => fin(new Error('No se pudo conectar con Google Sheets'));
+                script.src = `https://docs.google.com/spreadsheets/d/${PROTOCOLO_SHEET_ID}/gviz/tq?gid=${gid}&headers=0&tqx=out:json;responseHandler:${cb}`;
+                document.head.appendChild(script);
+            });
+        }
+        function tablaAFilas(tabla) {
+            return (tabla.rows || []).map(r => (r.c || []).map(c => {
+                if (!c || c.v == null) return '';
+                return String(typeof c.v === 'string' || c.f == null ? c.v : c.f).trim();
+            }));
+        }
+
+        // Convierte las filas de una pestaña en categorías y diagnósticos
+        function parsearPestana(filas) {
+            const categorias = [];
+            let actual = null, encabezados = ENCABEZADOS_DEFECTO;
+            filas.forEach(fila => {
+                const celdas = ENCABEZADOS_DEFECTO.map((_, i) => fila[i + 1] || '');
+                const diag = celdas[0];
+                const conDatos = celdas.slice(1).some(v => v);
+                if (!diag && !conDatos) return;
+                if (sinTildes(diag).startsWith('diagnostico')) { encabezados = celdas.map((h, i) => h || ENCABEZADOS_DEFECTO[i]); return; }
+                if (!conDatos && /^(terapia|manejo)\b/i.test(diag)) { actual = { titulo: diag, notas: [], items: [] }; categorias.push(actual); return; }
+                if (!actual) return;   // título general de la pestaña
+                if (!conDatos && /^nota\b/i.test(diag)) { actual.notas.push(diag); return; }
+                actual.items.push({ celdas, encabezados });
+            });
+            return categorias;
+        }
+
+        function construirProtocolo(tablas) {
+            clavesProtocolo.forEach(k => delete protocolosClinicos[k]);
+            clavesProtocolo = [];
+            const registrar = (id, datos) => { protocolosClinicos[id] = datos; clavesProtocolo.push(id); };
+
+            PROTOCOLO_PESTANAS.forEach(cfg => {
+                const categorias = parsearPestana(tablas[cfg.gid] || []);
+                const tarjetasDashboard = [];
+                categorias.forEach((cat, ci) => {
+                    const catId = `${cfg.prefijo}-cat-${ci}-${slug(cat.titulo)}`;
+                    const catTitulo = escaparHTML(tituloCategoria(cat.titulo));
+                    const emoji = emojiCategoria(cat.titulo);
+                    // Columna B: las líneas son el título; las que van entre paréntesis son notas
+                    const partir = (txt) => txt.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                    const tituloBase = (txt) => partir(txt).filter(l => !l.startsWith('(')).join(' / ').replace(/\.\s*$/, '');
+                    const repetidos = {};
+                    cat.items.forEach(it => { const k = sinTildes(tituloBase(it.celdas[0])); repetidos[k] = (repetidos[k] || 0) + 1; });
+                    const tarjetas = cat.items.map((item, ii) => {
+                        const c = item.celdas;
+                        const notaDiag = partir(c[0]).filter(l => l.startsWith('(')).map(l => l.replace(/^\(|\)$/g, '')).join(' ');
+                        const escenario = escaparHTML(c[1].replace(/\s*\r?\n\s*/g, ' '));
+                        let titulo = escaparHTML(tituloBase(c[0]));
+                        // Diagnósticos repetidos en la misma categoría se distinguen por el escenario
+                        if (repetidos[sinTildes(tituloBase(c[0]))] > 1 && escenario) titulo += ` (${escenario})`;
+
+                        const boxes = [];
+                        for (let col = 2; col <= 6; col++) {
+                            if (!c[col]) continue;
+                            const [style, icono] = ESTILO_COLUMNA[col];
+                            boxes.push({ style, title: `${icono} ${escaparHTML(item.encabezados[col])}`, html: formatearCelda(c[col]) });
+                        }
+                        const id = `${cfg.prefijo}-${ci}-${ii}-${slug(titulo)}`;
+                        registrar(id, {
+                            type: 'protocol', audiencia: cfg.prefijo, etiqueta: cfg.etiqueta, categoria: catTitulo, catId,
+                            title: titulo, emoji, escenario, nota: notaDiag ? escaparHTML(notaDiag) : '',
+                            boxes, fuente: c[7] ? formatearFuente(c[7]) : '',
+                            texto: sinTildes(c.join(' ')), inProgress: boxes.length === 0
+                        });
+                        return { id, title: titulo, hint: escenario, inProgress: boxes.length === 0 };
+                    });
+                    registrar(catId, {
+                        type: 'menu', audiencia: cfg.prefijo, emoji, title: `${catTitulo} (${cfg.etiqueta})`,
+                        stepTitle: 'Seleccione el diagnóstico', stepSubtitle: '',
+                        notas: cat.notas.map(escaparHTML), cards: tarjetas
+                    });
+                    tarjetasDashboard.push({ id: catId, emoji, title: catTitulo, inProgress: tarjetas.length === 0 });
+                });
+                registrar(cfg.dashboard, { type: 'dashboard', audiencia: cfg.prefijo, title: cfg.titulo, emoji: cfg.emoji, cards: tarjetasDashboard });
+            });
+            construirIndiceBusqueda();
+        }
+
+        function leerCopiaProtocolo() {
+            try { return JSON.parse(localStorage.getItem(PROTOCOLO_CACHE_KEY) || 'null'); } catch (e) { return null; }
+        }
+        function guardarCopiaProtocolo(copia) {
+            try { localStorage.setItem(PROTOCOLO_CACHE_KEY, JSON.stringify(copia)); } catch (e) { /* almacenamiento no disponible */ }
+        }
+
+        let cargaEnCurso = null;
+        let tablasVigentes = '';            // JSON de los datos mostrados, para saber si la hoja cambió
+        function cargarProtocolo() {
+            if (cargaEnCurso) return cargaEnCurso;
+            if (estadoProtocolo === 'error') { estadoProtocolo = 'cargando'; refrescarVistaProtocolo(); }
+            cargaEnCurso = Promise.all(PROTOCOLO_PESTANAS.map(p => leerPestana(p.gid).then(t => [p.gid, tablaAFilas(t)])))
+                .then(pares => {
+                    const tablas = Object.fromEntries(pares);
+                    const json = JSON.stringify(tablas);
+                    const cambio = json !== tablasVigentes || estadoProtocolo !== 'listo';
+                    protocoloFecha = new Date(); protocoloDesdeCopia = false;
+                    if (cambio) { construirProtocolo(tablas); tablasVigentes = json; }
+                    estadoProtocolo = 'listo';
+                    guardarCopiaProtocolo({ fecha: protocoloFecha.toISOString(), tablas });
+                    return cambio;
+                })
+                .catch(err => {
+                    console.warn('PURA: no se pudo leer Google Sheets.', err);
+                    if (estadoProtocolo !== 'listo') { estadoProtocolo = 'error'; return true; }
+                    protocoloDesdeCopia = true;
+                    return false;
+                })
+                .then(cambio => {
+                    cargaEnCurso = null;
+                    // Solo se redibuja la vista si cambió el contenido; si no, basta con actualizar la línea de estado
+                    if (cambio) refrescarVistaProtocolo();
+                    else document.querySelectorAll('.sheet-status').forEach(el => { el.outerHTML = buildEstadoProtocolo(); });
+                });
+            return cargaEnCurso;
+        }
+
+        // Si la vista abierta pertenece a Adultos o Pediatría, se vuelve a dibujar con los datos nuevos
+        function refrescarVistaProtocolo() {
+            const actual = navHistory[navHistory.length - 1];
+            const esProtocolo = actual && (clavesProtocolo.includes(actual) || PROTOCOLO_PESTANAS.some(p => p.dashboard === actual) || !protocolosClinicos[actual]);
+            if (esProtocolo && actual !== 'dashboard') { navHistory.pop(); renderView(actual); }
+        }
+
+        function iniciarProtocolo() {
+            const copia = leerCopiaProtocolo();
+            if (copia && copia.tablas) {
+                construirProtocolo(copia.tablas);
+                tablasVigentes = JSON.stringify(copia.tablas);
+                protocoloFecha = new Date(copia.fecha); protocoloDesdeCopia = true;
+                estadoProtocolo = 'listo';
+            }
+            cargarProtocolo();
+            // Al volver a la pestaña del navegador después de un rato, se consulta de nuevo la hoja
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && (!protocoloFecha || protocoloDesdeCopia || Date.now() - protocoloFecha > 2 * 60 * 1000)) cargarProtocolo();
+            });
+        }
+
+        // ==========================================
         // 2. BUSCADOR GLOBAL Y NAVEGACIÓN
         // ==========================================
         const searchIndex = [];
-        
-        // Generar índice automático de búsqueda basado en el JSON
-        Object.keys(protocolosClinicos).forEach(key => {
+
+        // Índice de búsqueda generado a partir de los datos; se reconstruye cuando llega la hoja de cálculo
+        function construirIndiceBusqueda() {
+          searchIndex.length = 0;
+          Object.keys(protocolosClinicos).forEach(key => {
             const item = protocolosClinicos[key];
-            if(item.title && key !== 'dashboard' && key !== 'adultos-dashboard' && key !== 'pediatria-dashboard') {
-                const isPediatric = key.includes('-ped');
+            if (item.title && item.type !== 'dashboard') {
+                const isPediatric = item.audiencia === 'ped';
                 const isAbg = ['organism', 'abg-home', 'abg-pheno'].includes(item.type);
                 let emoji = item.emoji || (isPediatric ? '👶' : '🧑‍⚕️');
-                let path = item.type === 'menu' ? 'Menú' : (isPediatric ? 'Tratamiento Pediátrico' : 'Tratamiento Adultos');
+                let path = item.type === 'menu' ? `Menú · ${isPediatric ? 'Pediatría' : 'Adultos'}`
+                    : `${isPediatric ? 'Pediatría' : 'Adultos'} · ${item.categoria || ''}`;
                 let extra = isPediatric ? ' pediatria ninos niño' : ' adultos';
+                if (item.type === 'protocol') extra += ' ' + item.texto;
                 if (isAbg) {
                     const org = item.type === 'abg-pheno' ? protocolosClinicos[item.org] : item;
                     emoji = item.type === 'abg-home' ? '🧫' : orgEmoji(org);
@@ -3792,7 +3298,9 @@
                     keywords: (item.title + extra).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
                 });
             }
-        });
+          });
+        }
+        construirIndiceBusqueda();
 
         const searchInput = document.getElementById('search-input');
         const resultsContainer = document.getElementById('search-results');
@@ -3862,42 +3370,56 @@
             if (data.title) html += `<div style="text-align: center; margin-bottom: 2rem;"><span style="font-size: 3.5rem; display: block; margin-bottom: 0.5rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">${data.emoji || ''}</span><h2 style="font-size: 2rem; color: var(--primary-gold); font-weight: 800;">${data.title}</h2></div>`;
             html += `<div class="grid-container">`;
             data.cards.forEach(card => {
-                const isGeneric = card.inProgress ? 'true' : 'false';
-                html += `<button class="module-card" onclick="renderView('${card.id}', ${isGeneric}, '${card.title}', '${card.emoji}')">${card.inProgress ? '<span class="badge-soon">Próximamente</span>' : ''}<div class="emoji">${card.emoji}</div><h3>${card.title}</h3></button>`;
+                // Las vistas generadas desde la hoja se abren por id; las genéricas pasan título y emoji
+                const accion = card.inProgress && !protocolosClinicos[card.id] ? `renderView('${card.id}', true, '${card.title}', '${card.emoji}')` : `renderView('${card.id}')`;
+                html += `<button class="module-card" onclick="${accion}">${card.inProgress ? '<span class="badge-soon">Próximamente</span>' : ''}<div class="emoji">${card.emoji}</div><h3>${card.title}</h3></button>`;
             });
             html += `</div>`;
+            if (data.audiencia) html += buildEstadoProtocolo();
             if (navHistory.length > 1) html += `<div style="margin-top: 3rem; display: flex; justify-content: center;">${buildBackButton()}</div>`;
             return html;
         }
 
         function renderMenu(data) {
-            let html = `<div class="detail-container"><div class="detail-header"><span class="detail-emoji">${data.emoji}</span><h2 class="detail-title">${data.title}</h2></div><div class="diagnostic-header-wrapper"><div class="diagnostic-header-inline"><h3 class="step-title">${data.stepTitle}</h3></div><p class="step-subtitle">${data.stepSubtitle}</p></div><div class="grid-container grid-container-small">`;
+            let html = `<div class="detail-container"><div class="detail-header"><span class="detail-emoji">${data.emoji}</span><h2 class="detail-title">${data.title}</h2></div><div class="diagnostic-header-wrapper"><div class="diagnostic-header-inline"><h3 class="step-title">${data.stepTitle}</h3></div><p class="step-subtitle">${data.stepSubtitle}</p></div>`;
+            (data.notas || []).forEach(n => { html += `<div class="info-box explicit"><h4>📌 Nota</h4><p>${n}</p></div>`; });
+            html += `<div class="grid-container grid-container-small">`;
             data.cards.forEach(card => {
-                const isGeneric = card.inProgress ? 'true' : 'false';
-                html += `<button class="module-card module-card-small" onclick="renderView('${card.id}', ${isGeneric}, '${card.title}', '${data.emoji}')">${card.inProgress ? '<span class="badge-soon">Próximamente</span>' : ''}<h3>${card.title}</h3></button>`;
+                html += `<button class="module-card module-card-small" onclick="renderView('${card.id}')">${card.inProgress ? '<span class="badge-soon">Próximamente</span>' : ''}<h3>${card.title}</h3></button>`;
             });
-            html += `</div>${buildBackButton()}</div>`;
+            html += `</div>${data.audiencia ? buildEstadoProtocolo() : ''}${buildBackButton()}</div>`;
             return html;
         }
 
-        function renderFlow(data) {
-            let html = `<div class="detail-container"><div class="detail-header"><h2 class="detail-title">${data.title}</h2></div><div class="list-container"><div class="flow-step"><span>${data.initialText}</span><span class="flow-arrow">&#8595;</span></div>`;
-            data.questions.forEach((q, index) => {
-                html += `<button class="list-card" onclick="renderView('${q.id}')"><h3>${q.text}</h3></button>`;
-                if (index < data.questions.length - 1) html += `<div class="flow-step"><span>Si su respuesta es <strong>NO</strong>, continúe</span><span class="flow-arrow">&#8595;</span></div>`;
-            });
-            html += `</div>${buildBackButton()}</div>`;
-            return html;
-        }
-
-        function renderTreatment(data) {
-            let html = `<div class="detail-container"><div class="detail-header"><h2 class="detail-title">${data.title}</h2></div><div class="treatment-content" style="width: 100%; max-width: 800px; margin: 0 auto;">`;
-            data.boxes.forEach(box => {
+        function renderProtocol(d) {
+            if (d.inProgress) return renderGeneric(d.title, d.emoji);
+            let html = `<div class="detail-container"><div class="detail-header"><span class="detail-emoji">${d.emoji}</span><div class="org-heading"><h2 class="detail-title">${d.title}</h2>
+                <div class="org-tags"><span class="gram-badge group-tag">${d.etiqueta} · ${d.categoria}</span>${d.escenario ? `<span class="gram-badge group-tag">📍 ${d.escenario}</span>` : ''}</div></div></div>
+                <div class="treatment-content" style="width: 100%; max-width: 800px; margin: 0 auto;">`;
+            if (d.nota) html += `<div class="info-box explicit"><h4>📌 Importante</h4><p>${d.nota}</p></div>`;
+            d.boxes.forEach(box => {
                 const styleClass = box.style === 'primary' ? '' : box.style;
-                html += `<div class="info-box ${styleClass}"><h4>${box.title}</h4><p>${box.content}</p></div>`;
+                html += `<div class="info-box ${styleClass}"><h4>${box.title}</h4><p>${box.html}</p></div>`;
             });
-            html += `</div><p class="medical-disclaimer-footer">Esta pauta es de apoyo clínico institucional. Verifique historia clínica, alergias, función renal (TFG) y contraindicaciones antes de formular.</p>${buildBackButton()}</div>`;
+            if (d.fuente) html += `<details class="abg-sources"><summary>Fuente</summary><p>${d.fuente}</p></details>`;
+            html += `</div>${buildEstadoProtocolo()}<p class="medical-disclaimer-footer">Esta pauta es de apoyo clínico institucional. Verifique historia clínica, alergias, función renal (TFG) y contraindicaciones antes de formular.</p>${buildBackButton()}</div>`;
             return html;
+        }
+
+        // Línea que indica de dónde y cuándo se obtuvieron los datos de Adultos y Pediatría
+        function buildEstadoProtocolo() {
+            if (!protocoloFecha) return '';
+            const cuando = protocoloFecha.toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            return protocoloDesdeCopia
+                ? `<p class="sheet-status offline">⚠️ Sin conexión con el protocolo en línea: se muestra la copia guardada del ${cuando}. <button class="sheet-retry" onclick="cargarProtocolo()">Reintentar</button></p>`
+                : `<p class="sheet-status">🔄 Protocolo institucional actualizado desde Google Sheets · ${cuando}</p>`;
+        }
+
+        function renderCargandoProtocolo() {
+            if (estadoProtocolo === 'error') {
+                return `<div class="detail-container"><div class="content-placeholder"><span>📡</span><p>No se pudo cargar el protocolo desde Google Sheets. Verifique su conexión a internet.</p><button class="btn-link" style="align-self:center" onclick="cargarProtocolo()">Reintentar</button></div>${buildBackButton()}</div>`;
+            }
+            return `<div class="detail-container"><div class="content-placeholder"><span class="sheet-spinner">⏳</span><p>Cargando el protocolo institucional…</p></div>${buildBackButton()}</div>`;
         }
 
         // ==========================================
@@ -4005,12 +3527,14 @@
                     viewContainer.innerHTML = renderGeneric(fallbackTitle || 'Módulo en desarrollo', fallbackEmoji || '⚙️');
                 } else {
                     const data = protocolosClinicos[viewId];
-                    if (data) {
+                    if (!data) {
+                        // Vista de Adultos/Pediatría que aún no llega (o no existe ya en la hoja de cálculo)
+                        viewContainer.innerHTML = estadoProtocolo === 'listo' ? renderGeneric(fallbackTitle || 'Contenido no disponible', '⚙️') : renderCargandoProtocolo();
+                    } else {
                         switch (data.type) {
                             case 'dashboard': viewContainer.innerHTML = renderDashboard(data); break;
                             case 'menu': viewContainer.innerHTML = renderMenu(data); break;
-                            case 'flow': viewContainer.innerHTML = renderFlow(data); break;
-                            case 'treatment': viewContainer.innerHTML = renderTreatment(data); break;
+                            case 'protocol': viewContainer.innerHTML = renderProtocol(data); break;
                             case 'abg-home': viewContainer.innerHTML = renderAbgHome(data); break;
                             case 'organism': viewContainer.innerHTML = renderOrganism(data); break;
                             case 'abg-pheno': viewContainer.innerHTML = renderPheno(data); break;
@@ -4034,6 +3558,7 @@
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             renderView('dashboard');
+            iniciarProtocolo();
             const modal = document.getElementById('disclaimer-modal');
             const btnAccept = document.getElementById('accept-disclaimer');
             
