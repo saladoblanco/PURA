@@ -3066,17 +3066,28 @@
         //   - Fila cuya columna B dice "Diagnóstico" → encabezados (títulos de los recuadros).
         //   - Fila que empieza por "NOTA" → nota de la categoría.
         //   - Cualquier otra fila con texto en la columna B → diagnóstico.
-        // Columnas: B Diagnóstico, C Escenario, D-F Esquemas, G Duración, H Observaciones, I Fuente.
+        // Columnas: B Diagnóstico, C Escenario y desde D los recuadros. El estilo de cada recuadro
+        // (y cuál columna es la Fuente) se decide por el texto de su encabezado, no por su posición.
+        // Estructura actual: D Primera línea, E Segunda línea / Alergias, F Duración, G Observaciones, H Fuente.
         // ==========================================
-        const PROTOCOLO_SHEET_ID = '17L8wa46f_SitVJk1ywglzKnGOlT_ySBBpVbBUluYpVY';
+        const PROTOCOLO_SHEET_ID = '1IiiKVRm1fPQ22-18BfHbDGhOKvdxJ718NY2iq14TQ9M';
         const PROTOCOLO_PESTANAS = [
             { gid: '0', prefijo: 'ad', dashboard: 'adultos-dashboard', titulo: 'Módulo Adultos', emoji: '🧑‍⚕️', etiqueta: 'Adultos' },
             { gid: '758694509', prefijo: 'ped', dashboard: 'pediatria-dashboard', titulo: 'Módulo Pediatría', emoji: '👶', etiqueta: 'Pediatría' }
         ];
-        const PROTOCOLO_CACHE_KEY = 'pura-protocolo-sheets-v1';
-        const ENCABEZADOS_DEFECTO = ['Diagnóstico', 'Escenario', 'Primera línea', 'Segunda línea', 'Alergias', 'Duración', 'Observaciones', 'Fuente'];
-        // Estilo e icono del recuadro según la columna (índice dentro de B..I)
-        const ESTILO_COLUMNA = { 2: ['primary', '💊'], 3: ['explicit', '🔄'], 4: ['warning', '⚠️'], 5: ['secondary', '⏱️'], 6: ['secondary', '📋'] };
+        const PROTOCOLO_CACHE_KEY = 'pura-protocolo-sheets-v2';   // v2: nueva hoja de cálculo
+        // Se leen las columnas B..I; la última queda libre por si se agrega una columna en la hoja
+        const ENCABEZADOS_DEFECTO = ['Diagnóstico', 'Escenario', 'Primera línea', 'Segunda línea / Alergias', 'Duración', 'Observaciones', 'Fuente', ''];
+        // Estilo e icono del recuadro según el texto del encabezado de la columna
+        function estiloColumna(encabezado) {
+            const h = sinTildes(encabezado || '');
+            if (h.includes('fuente')) return 'fuente';
+            if (h.includes('duracion')) return ['secondary', '⏱️'];
+            if (h.includes('observ')) return ['secondary', '📋'];
+            if (h.includes('segunda') || h.includes('alternativa')) return ['explicit', '🔄'];
+            if (h.includes('alergi')) return ['warning', '⚠️'];
+            return ['primary', '💊'];
+        }
         const EMOJI_CATEGORIA = [['urinari', '🦠'], ['piel', '🩹'], ['abdominal', '🤮'], ['osteo', '🦴'], ['neuro', '🧠'], ['nervioso', '🧠'],
             ['otorrino', '👂'], ['respirat', '🫁'], ['gineco', '🤰'], ['dispositivo', '🩺'], ['sepsis', '🩸'], ['sistemic', '🩸']];
 
@@ -3179,17 +3190,19 @@
                         // Diagnósticos repetidos en la misma categoría se distinguen por el escenario
                         if (repetidos[sinTildes(tituloBase(c[0]))] > 1 && escenario) titulo += ` (${escenario})`;
 
-                        const boxes = [];
-                        for (let col = 2; col <= 6; col++) {
+                        const boxes = [], fuentes = [];
+                        for (let col = 2; col < c.length; col++) {
                             if (!c[col]) continue;
-                            const [style, icono] = ESTILO_COLUMNA[col];
-                            boxes.push({ style, title: `${icono} ${escaparHTML(item.encabezados[col])}`, html: formatearCelda(c[col]) });
+                            const estilo = estiloColumna(item.encabezados[col]);
+                            if (estilo === 'fuente') { fuentes.push(c[col]); continue; }
+                            const [style, icono] = estilo;
+                            boxes.push({ style, title: `${icono} ${escaparHTML(item.encabezados[col] || 'Información adicional')}`, html: formatearCelda(c[col]) });
                         }
                         const id = `${cfg.prefijo}-${ci}-${ii}-${slug(titulo)}`;
                         registrar(id, {
                             type: 'protocol', audiencia: cfg.prefijo, etiqueta: cfg.etiqueta, categoria: catTitulo, catId,
                             title: titulo, emoji, escenario, nota: notaDiag ? escaparHTML(notaDiag) : '',
-                            boxes, fuente: c[7] ? formatearFuente(c[7]) : '',
+                            boxes, fuente: fuentes.length ? formatearFuente(fuentes.join('\n')) : '',
                             texto: sinTildes(c.join(' ')), inProgress: boxes.length === 0
                         });
                         return { id, title: titulo, hint: escenario, inProgress: boxes.length === 0 };
